@@ -10,12 +10,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes.userRouter import user
 from app.shared.middlewares import authMiddleWare
 from app.routes.userRouter import rolRoutes
+from app.routes.establishmentRoutes import establishmentRoutes
 from app.routes.employeeRouter import employeeRoutes
 
 app = FastAPI()
 
 app.include_router(rolRoutes)
 app.include_router(employeeRoutes)
+app.include_router(establishmentRoutes)
 
 origins = [
     "http://localhost",

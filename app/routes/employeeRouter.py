@@ -7,8 +7,6 @@ import app.models
 from app.models.Employee import employee
 from app.schemas.Employee import EmployeeRequest, EmployeeResponse
 from app.models.EmployeeModel import EmployeeResponse
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from typing import Annotated
 
 employeeRoutes = APIRouter(); 
 
@@ -21,13 +19,13 @@ async def create_employee(post_employee: EmployeeRequest, db: Session = Depends(
     db.refresh(new_employee)
     return new_employee.__dict__
 
-
 @employeeRoutes.get('/employee/', status_code= status.HTTP_200_OK, response_model= List[EmployeeResponse])
 async def get_employees(db: Session = Depends(get_db)):
     all_employees = db.query(employee).all(); 
     for i in all_employees:
         print("employee" + i.nombre)
     return all_employees; 
+
 
 @employeeRoutes.put("/employee/${id_employee}", response_model=EmployeeResponse)
 async def change_employee(id_employee: int, employeeChange: EmployeeRequest,db: Session = Depends(get_db)): 

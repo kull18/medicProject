@@ -7,8 +7,6 @@ import app.models
 from app.models.User import user
 from app.schemas.User import userRequest, userResponse
 from app.models.UserMode import userResponse
-
-
 Base.metadata.create_all(bind=engine)
 rolRoutes = APIRouter() 
 
@@ -34,7 +32,6 @@ async def get_roles(db: Session = Depends(get_db)):
 async def change_rol(id_rol: int, userChange: userRequest,db: Session = Depends(get_db)): 
     change_rol = db.query(user).filter(user.id == id_rol).first()
     if change_rol is None:
-
         raise HTTPException(
             status_code=404,
             detail="rol no encontrado"
