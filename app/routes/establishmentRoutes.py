@@ -7,12 +7,17 @@ import app.models
 from app.models.Establishment import Establishment
 from app.schemas.Establishment import EstablishmentRequest, EstablishmentResponse
 from app.models.EstablishmentModel import EstablishmentResponse
-establishmentRoutes = APIRouter(); 
+
+
+establishmentRoutes = APIRouter(
+    tags=["establishments"],
+    deprecated=False
+); 
 
 
 @establishmentRoutes.post('/establishment/', status_code=status.HTTP_201_CREATED, response_model=EstablishmentResponse)
-async def create_employee(post_employee: EstablishmentRequest, db: Session = Depends(get_db)):
-    new_establishment = Establishment(**post_employee.model_dump())
+async def create_employee(post_establishment: EstablishmentRequest, db: Session = Depends(get_db)):
+    new_establishment = Establishment(**post_establishment.model_dump())
     db.add(new_establishment)
     db.commit()
     db.refresh(new_establishment)
@@ -20,7 +25,7 @@ async def create_employee(post_employee: EstablishmentRequest, db: Session = Dep
 
 
 @establishmentRoutes.get('/establishment/', status_code= status.HTTP_200_OK, response_model= List[EstablishmentResponse])
-async def get_employees(db: Session = Depends(get_db)):
+async def get_establishments(db: Session = Depends(get_db)):
     all_establishments = db.query(Establishment).all(); 
     for i in all_establishments:
         print("establishment")
@@ -29,7 +34,7 @@ async def get_employees(db: Session = Depends(get_db)):
 
 @establishmentRoutes.put("/establishment/${id_establishment}", response_model=EstablishmentResponse)
 async def change_establishment(id_establishment: int, employeeChange: EstablishmentRequest,db: Session = Depends(get_db)): 
-    change_establishment = db.query(Establishment).filter(Establishment.id == id_establishment).first()
+    change_establishment = db.query(Establishment).filter(Establishment.id_establecimiento == id_establishment).first()
     if change_establishment is None:
         raise HTTPException(
             status_code=404,
@@ -47,15 +52,15 @@ async def change_establishment(id_establishment: int, employeeChange: Establishm
     return change_establishment
 
 @establishmentRoutes.delete("/establishment/${id_employee}", response_model=EstablishmentResponse)
-async def delete_establishment(id_employee: int, db: Session = Depends(get_db)):
-    delete_employee = db.query(Establishment).filter(Establishment.id == id_employee).first()
-    if delete_employee is None:
+async def delete_establishment(id_establishment: int, db: Session = Depends(get_db)):
+    delete_establishment = db.query(Establishment).filter(Establishment.id_establecimiento == id_establishment).first()
+    if delete_establishment is None:
         raise HTTPException(
             status_code=404, 
             detail="establishment no encontrado"
         )
     
-    db.delete(delete_employee)
+    db.delete(delete_establishment)
     db.commit()
-    return delete_employee
+    return delete_establishment
     

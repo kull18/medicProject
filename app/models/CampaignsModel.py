@@ -1,11 +1,9 @@
 from pydantic import BaseModel; 
 
-class ServiceResponse(BaseModel):
+class CampaignsResponse(BaseModel):
+    nombre: str
+    descripción: str
     id_establecimiento: int
-    tipo: str
-    costo: int
-    serviciocol: str
-
+    
     class config():
         orm_mode = True
-

@@ -8,7 +8,10 @@ from app.models.Employee import employee
 from app.schemas.Employee import EmployeeRequest, EmployeeResponse
 from app.models.EmployeeModel import EmployeeResponse
 
-employeeRoutes = APIRouter(); 
+employeeRoutes = APIRouter(
+    tags=["employees"],
+    deprecated=False
+); 
 
 
 @employeeRoutes.post('/employee/', status_code=status.HTTP_201_CREATED, response_model=EmployeeResponse)
@@ -29,7 +32,7 @@ async def get_employees(db: Session = Depends(get_db)):
 
 @employeeRoutes.put("/employee/${id_employee}", response_model=EmployeeResponse)
 async def change_employee(id_employee: int, employeeChange: EmployeeRequest,db: Session = Depends(get_db)): 
-    change_employee = db.query(employee).filter(employee.id == id_employee).first()
+    change_employee = db.query(employee).filter(employee.id_empleado == id_employee).first()
     if change_employee is None:
 
         raise HTTPException(
@@ -49,7 +52,7 @@ async def change_employee(id_employee: int, employeeChange: EmployeeRequest,db: 
 
 @employeeRoutes.delete("/employee/${id_employee}", response_model=EmployeeResponse)
 async def delete_employee(id_employee: int, db: Session = Depends(get_db)):
-    delete_employee = db.query(employee).filter(employee.id == id_employee).first()
+    delete_employee = db.query(employee).filter(employee.id_empleado == id_employee).first()
     if delete_employee is None:
         raise HTTPException(
             status_code=404, 

@@ -1,20 +1,17 @@
 from pydantic import BaseModel; 
 
 
-class ServiceBase(BaseModel):
-    id_establecimiento: int
+class Type_establishmentBase(BaseModel):
     tipo: str
-    costo: int
-    serviciocol: str
 
     class config:
         orm_mode = True
 
-class ServiceRequest(ServiceBase):
+class Type_establishmentRequest(Type_establishmentBase):
     class config:
         orm_mode = True
 
-class ServiceResponse(ServiceBase):
+class Type_establishmentResponse(Type_establishmentBase):
     id: int
 
 
