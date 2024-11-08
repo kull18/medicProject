@@ -3,7 +3,8 @@ from pydantic import BaseModel;
 class EstablishmentResponse(BaseModel):
     id_tipo_establecimiento: int
     id_dirección: int
-    id_horario: int
+    hora_apertura: time
+    hora cierre: time
 
     class config():
         orm_mode = True

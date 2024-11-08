@@ -6,4 +6,4 @@ class patient(Base):
     
     id_paciente = Column(Integer, autoincrement=True,primary_key=True, index=True)
     nombres = Column(String(), nullable=True)
-    apellidos = Column(String(), nullable=True)
+    contraseñas = Column(String(), nullable=True)
