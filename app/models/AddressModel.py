@@ -1,6 +1,6 @@
 from pydantic import BaseModel; 
 
-class DirectionResponse(BaseModel):
+class AddressResponse(BaseModel):
     id_dirección: int
     latitud: float
     longitud: float

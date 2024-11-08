@@ -1,19 +1,18 @@
 from pydantic import BaseModel; 
 
-class DirectionBase(BaseModel):
+class CampaignsBase(BaseModel):
+    nombre: str
+    descripción: str
     id_establecimiento: int
-    id_tipo_establecimiento : int
-    id_dirección: int
-    id_horario: int
 
     class config:
         orm_mode = True
 
-class DirectionRequest(DirectionBase):
+class CampaignsRequest(CampaignsBase):
     class config:
         orm_mode = True
 
-class DirectionResponse(DirectionBase):
+class CampaignsResponse(CampaignsBase):
     id: int
 
 

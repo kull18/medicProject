@@ -1,6 +1,6 @@
 from pydantic import BaseModel; 
 
-class ServiceResponse(BaseModel):
+class ScheduleResponse(BaseModel):
     id_establecimiento: int
     tipo: str
     costo: int

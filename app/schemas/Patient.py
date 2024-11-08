@@ -1,18 +1,18 @@
 from pydantic import BaseModel; 
 
 
-class UserBase(BaseModel):
-    id: int
-    name: str
+class PatientBase(BaseModel):
+    nombres: str
+    apellidos: str
 
     class config:
         orm_mode = True
 
-class userRequest(UserBase):
+class PatientRequest(PatientBase):
     class config:
         orm_mode = True
 
-class userResponse(UserBase):
+class PatientResponse(PatientBase):
     id: int
 
 

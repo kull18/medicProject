@@ -2,7 +2,6 @@ from pydantic import BaseModel;
 
 
 class EmployeeBase(BaseModel):
-    id_empleado: int
     id_rol: int
     nombre: str
     contraseña: str

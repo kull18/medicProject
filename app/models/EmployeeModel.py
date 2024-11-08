@@ -1,7 +1,6 @@
 from pydantic import BaseModel; 
 
 class EmployeeResponse(BaseModel):
-    id_empleado: int
     id_rol: int
     nombre: str
     contraseña: str
@@ -11,3 +10,4 @@ class EmployeeResponse(BaseModel):
     
     class config():
         orm_mode = True
+

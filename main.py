@@ -5,19 +5,24 @@ from pymongo.mongo_client import MongoClient
 from app.shared.config.db import engine, get_db, Base
 from app.shared.config.mongoConnection import client
 import app.models
-from app.models.User import user
+from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes.userRouter import user
 from app.shared.middlewares import authMiddleWare
-from app.routes.userRouter import rolRoutes
+from app.routes.rolRouter import rolRoutes
 from app.routes.establishmentRoutes import establishmentRoutes
 from app.routes.employeeRouter import employeeRoutes
+from app.routes.addressRoutes import addressRoutes
+from app.routes.serviceRouter import serviceRoutes
+from app.routes.campaignsRoutes import campaignsRoutes
+
+load_dotenv(); 
 
 app = FastAPI()
 
-app.include_router(rolRoutes)
-app.include_router(employeeRoutes)
-app.include_router(establishmentRoutes)
+#iter routes
+routes = [rolRoutes, employeeRoutes, addressRoutes, serviceRoutes, establishmentRoutes, campaignsRoutes]
+for route  in routes:
+    app.include_router(route)
 
 origins = [
     "http://localhost",

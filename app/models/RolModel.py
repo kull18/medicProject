@@ -1,7 +1,6 @@
 from pydantic import BaseModel; 
 
-class userResponse(BaseModel):
-    id: int
+class rolResponse(BaseModel):
     name: str
 
 class config:
