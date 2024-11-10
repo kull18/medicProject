@@ -15,7 +15,7 @@ from app.routes.type_establishmentRoutes import type_establishmentRoutes
 from app.routes.patientRoutes import patientRoutes
 from app.routes.quotesRoutes import quotesRoutes
 from app.routes.scheduleRoutes import scheduleRoutes
-from app.routes.serviceDoctorRoutes import ScheduleDoctor
+from app.routes.serviceDoctorRoutes import scheduleDoctorRoutes
 from app.routes.establishmentRoutes import establishmentRoutes
 from app.routes.employeeRouter import employeeRoutes
 from app.routes.serviceRouter import serviceRoutes
@@ -27,7 +27,7 @@ app = FastAPI()
 
 
 #iter routes
-routes = [ rolRoutes, employeeRoutes, patientRoutes, Session,scheduleRoutes,campaignsRoutes,addressRoutes, quotesRoutes,serviceRoutes,type_establishmentRoutes,establishmentRoutes, billRoutes]
+routes = [ rolRoutes, employeeRoutes, patientRoutes, scheduleDoctorRoutes, scheduleRoutes,campaignsRoutes,addressRoutes, quotesRoutes,serviceRoutes,type_establishmentRoutes,establishmentRoutes, billRoutes]
 for route  in routes:
     app.include_router(route)
 

@@ -8,13 +8,13 @@ from app.models.ScheduleDoctor import ScheduleDoctor
 from app.schemas.ScheduleDoctor import ScheduleDoctorRequest, ScheduleDoctorResponse
 from app.models.ScheduleDoctorModel import ScheduleDoctorResponse
 
-scheduleRoutes = APIRouter(
+scheduleDoctorRoutes = APIRouter(
     tags=["scheduleDoctor"],
     deprecated=False
 ); 
 
 
-@scheduleRoutes.post('/schedule/', status_code=status.HTTP_201_CREATED, response_model=ScheduleDoctorResponse)
+@scheduleDoctorRoutes.post('/schedule/', status_code=status.HTTP_201_CREATED, response_model=ScheduleDoctorResponse)
 async def create_employee(post_scheduleDoctor: ScheduleDoctorRequest, db: Session = Depends(get_db)):
     new_scheduleDoctor = ScheduleDoctor(**post_scheduleDoctor.model_dump())
     db.add(new_scheduleDoctor)
@@ -23,7 +23,7 @@ async def create_employee(post_scheduleDoctor: ScheduleDoctorRequest, db: Sessio
     return new_scheduleDoctor.__dict__
 
 
-@scheduleRoutes.get('/schedule/', status_code= status.HTTP_200_OK, response_model= List[ScheduleDoctorResponse])
+@scheduleDoctorRoutes.get('/schedule/', status_code= status.HTTP_200_OK, response_model= List[ScheduleDoctorResponse])
 async def get_quotes(db: Session = Depends(get_db)):
     all_schedules = db.query(ScheduleDoctor).all(); 
     for i in all_schedules:
@@ -31,7 +31,7 @@ async def get_quotes(db: Session = Depends(get_db)):
     return all_schedules; 
 
 
-@scheduleRoutes.put("/schedule/{id_schedule}", response_model=ScheduleDoctorResponse)
+@scheduleDoctorRoutes.put("/schedule/{id_schedule}", response_model=ScheduleDoctorResponse)
 async def change_scheduleDoctor(id_sceduleDoctor: int, scheduleChange: ScheduleDoctorRequest,db: Session = Depends(get_db)): 
     change_scheduleDoctor  = db.query(ScheduleDoctor).filter(ScheduleDoctor.id_horario == id_sceduleDoctor).first()
     if change_scheduleDoctor is None:
@@ -50,7 +50,7 @@ async def change_scheduleDoctor(id_sceduleDoctor: int, scheduleChange: ScheduleD
     db.refresh(change_scheduleDoctor)
     return change_scheduleDoctor
 
-@scheduleRoutes.delete("/schedule/{id_schedule}", response_model=ScheduleDoctorResponse)
+@scheduleDoctorRoutes.delete("/schedule/{id_schedule}", response_model=ScheduleDoctorResponse)
 async def delete_schedule(id_schedule: int, db: Session = Depends(get_db)):
     delete_schedule = db.query(ScheduleDoctor).filter(ScheduleDoctor.id_horario == id_schedule).first()
     if delete_schedule is None:
