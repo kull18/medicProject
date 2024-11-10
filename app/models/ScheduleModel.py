@@ -1,11 +1,10 @@
 from pydantic import BaseModel; 
-
+from time import time
 class ScheduleResponse(BaseModel):
-    id_establecimiento: int
-    tipo: str
-    costo: int
-    serviciocol: str
-
+    entrada: str
+    salida: str 
+    
     class config():
         orm_mode = True
+        arbitrary_types_allowed = True
 

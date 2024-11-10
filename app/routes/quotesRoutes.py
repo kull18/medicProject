@@ -8,7 +8,6 @@ from app.models.Quotes import quotes
 from app.schemas.Quotes import QuotesRequest, QuotesResponse
 from app.models.QuotesModel import QuotesResponse
 
-
 quotesRoutes = APIRouter(
     tags=["quotes"],
     deprecated=False
@@ -28,7 +27,7 @@ async def create_employee(post_quote: QuotesRequest, db: Session = Depends(get_d
 async def get_quotes(db: Session = Depends(get_db)):
     all_quotes = db.query(quotes).all(); 
     for i in all_quotes:
-        print("quote")
+        print("quote" + i.estatus)
     return all_quotes; 
 
 

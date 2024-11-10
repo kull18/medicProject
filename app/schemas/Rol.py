@@ -2,8 +2,8 @@ from pydantic import BaseModel;
 
 
 class RolBase(BaseModel):
-    id: int
-    name: str
+    id_rol: int
+    description: str
 
     class config:
         orm_mode = True

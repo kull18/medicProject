@@ -4,6 +4,6 @@ from app.shared.config.db import Base
 class rol(Base):
     __tablename__ = "rol"
     
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=True); 
+    id_rol = Column(Integer, primary_key=True, index=True)
+    description = Column(String, nullable=True); 
 

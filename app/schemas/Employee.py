@@ -8,10 +8,19 @@ class EmployeeBase(BaseModel):
     horario: int
     id_establecimiento: int
     id_servicio: int
-
     class config:
         orm_mode = True
+class EmployeeLoginBase(BaseModel):
+    nombre: str
+    contraseña: str
+    class config:
+        orm_mode = True
+
 class EmployeeRequest(EmployeeBase):
+    class config:
+        orm_mode = True
+
+class EmployeeLoginReques(EmployeeLoginBase):
     class config:
         orm_mode = True
 

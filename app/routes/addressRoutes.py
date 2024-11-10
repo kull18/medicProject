@@ -13,6 +13,8 @@ addressRoutes = APIRouter(
     deprecated=False
 ); 
 
+addressRoutes
+
 
 @addressRoutes.post('/address/', status_code=status.HTTP_201_CREATED, response_model=AddressResponse)
 async def create_employee(post_address: AddressRequest, db: Session = Depends(get_db)):

@@ -36,7 +36,7 @@ async def get_roles(db: Session = Depends(get_db)):
 
 @rolRoutes.put("/users/${id_rol}", response_model=rolResponse)
 async def change_rol(id_rol: int, userChange: rolRequest,db: Session = Depends(get_db)): 
-    change_rol = db.query(rol).filter(rol.id == id_rol).first()
+    change_rol = db.query(rol).filter(rol.id_rol == id_rol).first()
     if change_rol is None:
         raise HTTPException(
             status_code=404,
@@ -55,7 +55,7 @@ async def change_rol(id_rol: int, userChange: rolRequest,db: Session = Depends(g
 
 @rolRoutes.delete("/rol/${id_rol}", response_model=rolResponse)
 async def delete_rol(id_rol: int, db: Session = Depends(get_db)):
-    delete_rol = db.query(rol).filter(rol.id == id_rol).first()
+    delete_rol = db.query(rol).filter(rol.id_rol == id_rol).first()
     if delete_rol is None:
     
         raise HTTPException(

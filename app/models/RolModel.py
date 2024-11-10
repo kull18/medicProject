@@ -1,7 +1,7 @@
 from pydantic import BaseModel; 
 
 class rolResponse(BaseModel):
-    name: str
+    description: str
 
 class config:
     orm_mode = True
