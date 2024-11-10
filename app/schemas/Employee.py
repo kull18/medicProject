@@ -5,7 +5,7 @@ class EmployeeBase(BaseModel):
     id_rol: int
     nombre: str
     contraseña: str
-    horario: int
+    id_horario: int
     id_establecimiento: int
     id_servicio: int
     class config:
