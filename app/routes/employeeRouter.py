@@ -39,7 +39,7 @@ async def login_employee(user: EmployeeLoginReques,db: Session = Depends(get_db)
     except Exception as e:
         return e; 
 
-@employeeRoutes.put("/employee/${id_employee}", response_model=EmployeeResponse)
+@employeeRoutes.put("/employee/{id_employee}", response_model=EmployeeResponse)
 async def change_employee(id_employee: int, employeeChange: EmployeeRequest,db: Session = Depends(get_db)): 
     change_employee = db.query(employee).filter(employee.id_empleado == id_employee).first()
     if change_employee is None:
@@ -59,7 +59,7 @@ async def change_employee(id_employee: int, employeeChange: EmployeeRequest,db: 
     db.refresh(change_employee)
     return change_employee
 
-@employeeRoutes.delete("/employee/${id_employee}", response_model=EmployeeResponse)
+@employeeRoutes.delete("/employee/{id_employee}", response_model=EmployeeResponse)
 async def delete_employee(id_employee: int, db: Session = Depends(get_db)):
     delete_employee = db.query(employee).filter(employee.id_empleado == id_employee).first()
     if delete_employee is None:

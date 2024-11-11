@@ -1,10 +1,10 @@
 from pydantic import BaseModel; 
-from time import time
+from datetime import time
 
 class ScheduleDoctorBase(BaseModel):
     día: str
-    entrada: str 
-    salida: str
+    entrada: time 
+    salida: time
 
     class config:
         orm_mode = True

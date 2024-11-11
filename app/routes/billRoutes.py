@@ -30,7 +30,7 @@ async def get_employees(db: Session = Depends(get_db)):
     return all_bills; 
 
 
-@billRoutes.put("/bills/${folio}", response_model=BillsResponse)
+@billRoutes.put("/bills/{folio}", response_model=BillsResponse)
 async def change_bill(folio: int, billChanges: BillsRequest,db: Session = Depends(get_db)): 
     change_bill = db.query(bills).filter(bills.folio == folio).first()
     if change_bill is None:
@@ -50,7 +50,7 @@ async def change_bill(folio: int, billChanges: BillsRequest,db: Session = Depend
     db.refresh(change_bill)
     return change_bill
 
-@billRoutes.delete("/billDelete/${id_bill}", response_model=BillsResponse)
+@billRoutes.delete("/billDelete/{id_bill}", response_model=BillsResponse)
 async def delete_bill(folio: int, db: Session = Depends(get_db)):
     delete_bill = db.query(bills).filter(bills.folio == folio).first()
     if delete_bill is None:

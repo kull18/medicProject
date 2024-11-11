@@ -26,8 +26,6 @@ async def create_employee(post_schedule: ScheduleRequest, db: Session = Depends(
 @scheduleRoutes.get('/schedule/', status_code= status.HTTP_200_OK, response_model= List[ScheduleResponse])
 async def get_quotes(db: Session = Depends(get_db)):
     all_schedules = db.query(Schedule).all(); 
-    for i in all_schedules:
-        print("schedule" + i.entrada)
     return all_schedules; 
 
 

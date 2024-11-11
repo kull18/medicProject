@@ -34,7 +34,7 @@ async def get_roles(db: Session = Depends(get_db)):
               )
     return all_roles; 
 
-@rolRoutes.put("/users/${id_rol}", response_model=rolResponse)
+@rolRoutes.put("/users/{id_rol}", response_model=rolResponse)
 async def change_rol(id_rol: int, userChange: rolRequest,db: Session = Depends(get_db)): 
     change_rol = db.query(rol).filter(rol.id_rol == id_rol).first()
     if change_rol is None:
@@ -53,7 +53,7 @@ async def change_rol(id_rol: int, userChange: rolRequest,db: Session = Depends(g
     db.refresh(change_rol)
     return change_rol
 
-@rolRoutes.delete("/rol/${id_rol}", response_model=rolResponse)
+@rolRoutes.delete("/rol/{id_rol}", response_model=rolResponse)
 async def delete_rol(id_rol: int, db: Session = Depends(get_db)):
     delete_rol = db.query(rol).filter(rol.id_rol == id_rol).first()
     if delete_rol is None:

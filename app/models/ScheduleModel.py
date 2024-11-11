@@ -1,8 +1,8 @@
 from pydantic import BaseModel; 
-from time import time
+from datetime import time
 class ScheduleResponse(BaseModel):
-    entrada: str
-    salida: str 
+    entrada: time
+    salida: time
     
     class config():
         orm_mode = True
