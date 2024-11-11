@@ -31,7 +31,7 @@ for route  in routes:
     app.include_router(route)
 
 origins = [
-    "http://localhost:4200/"
+    "http://localhost:4200"
     "http://localhost",
     "http://localhost:8080",
     "http://127.0.0.1:8000"
