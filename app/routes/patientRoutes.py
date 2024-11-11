@@ -31,7 +31,6 @@ async def get_patients(db: Session = Depends(get_db)):
         print("establishment")
     return all_patients; 
 
-
 @patientRoutes.put("/patient/{id_patient}", response_model=PatientResponse)
 async def change_patient(id_patient: int, employeeChange:PatientRequest,db: Session = Depends(get_db)): 
     change_patient = db.query(patient).filter(patient.id_paciente == id_patient).first()
