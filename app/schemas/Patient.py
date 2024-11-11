@@ -13,6 +13,21 @@ class PatientRequest(PatientBase):
     class config:
         orm_mode = True
 
+
+
+class PatientLoginBase(BaseModel):
+    nombres: str
+    contraseña: str
+
+    class config:
+        orm_mode = True
+
+class PatientLoginRequest(PatientLoginBase):
+    class config:
+        orm_mode = True
+
+
+
 class PatientResponse(PatientBase):
     id: int
 

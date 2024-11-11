@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from app.schemas.Employee import EmployeeRequest
+from app.schemas.Patient import PatientRequest
 from app.models.Employee import employee
+from app.models.Patient import patient
 from app.shared.utils.security import hash_password
 from fastapi import HTTPException
 
@@ -24,6 +26,24 @@ def createUser(db: Session, employee_data: EmployeeRequest):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=f"Error al crear el usuario: {str(e)}")
+    
+
+def createUserNormal(db: Session, patient_data: PatientRequest):
+    try:
+        hashed_password = hash_password(patient_data.contraseña)
+        
+        db_user = patient(
+            nombres = patient_data.nombres,
+            apellidos = patient_data.apellidos,
+            contraseña = hashed_password
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=f"Error al crear el patient : {str(e)}")
 
 
 def getUsers(db:Session):
