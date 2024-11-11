@@ -3,6 +3,7 @@ from fastapi import FastAPI, Depends,status, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 import magic
+from io import BytesIO
 from app.shared.config.db import get_db, Base
 import app.models
 from app.shared.config.s3Connection import getS3_connection
@@ -10,11 +11,12 @@ from app.models.Establishment import Establishment
 from app.models.Servicie import Service
 from app.schemas.Establishment import EstablishmentRequest, EstablishmentResponse
 from app.models.EstablishmentModel import EstablishmentResponse
+import os
 
-KB = 1024 
-MB = 1024 * KB
+
 SupportedTypes = ["image/jpeg", "image/png"]
 s3 = getS3_connection(); 
+bucketName = os.getenv("BUCKET")
 establishmentRoutes = APIRouter(
     tags=["establishments"],
     deprecated=False
@@ -56,28 +58,16 @@ async def get_establishments(db: Session = Depends(get_db)):
         print("establishment")
     return all_establishments; 
 
-
+''' 
 @establishmentRoutes.post("/image/", status_code= status.HTTP_200_OK)
-async def postImage_establishment(id_establishment: int = Form(...),imageEstablishment: UploadFile = Form(...), db: Session = Depends(get_db)):
-    id_find_imageEmployee = db.query(Establishment).filter(Establishment.id_tipo_establecimiento == id_establishment).first(); 
-
-    if id_find_imageEmployee is None:
-        raise HTTPException(
-            status_code= status.HTTP_400_BAD_REQUEST
-        )
-
+async def postImage_establishment(id_establishment: int,imageEstablishment: UploadFile, db: Session = Depends(get_db)):
     if not imageEstablishment:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="error"
         )
     
-    content = await imageEstablishment.read(); 
-    size = len(content); 
-     
-    if not 0 < size <= 1 * MB:
-        raise HTTPException(
-           status_code = status.HTTP_400_BAD_REQUEST 
-        )
+    content = await imageEstablishment.read()
     
     file_type = magic.from_buffer(buffer=content, mime=True)
 
@@ -86,9 +76,13 @@ async def postImage_establishment(id_establishment: int = Form(...),imageEstabli
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST
         )
-    await s3.upload_file(contentents=content, key="regiber"); 
+    
+    file_like_object = BytesIO(content)
 
 
+    await s3.upload_fileobj(file_like_object, bucketName, "regiber"); 
+
+'''
 @establishmentRoutes.put("/establishment/{id_establishment}", response_model=EstablishmentResponse)
 async def change_establishment(id_establishment: int, employeeChange: EstablishmentRequest,db: Session = Depends(get_db)): 
     change_establishment = db.query(Establishment).filter(Establishment.id_establecimiento == id_establishment).first()

@@ -1,13 +1,13 @@
-from pydantic import BaseModel; 
+from pydantic import BaseModel
+from typing import Optional
 
 class EmployeeResponse(BaseModel):
-    id_rol: int
+    id_rol: Optional[int] = None
     nombre: str
     contraseña: str
-    id_horario: int
-    id_establecimiento: int
-    id_servicio: int
+    id_horario: Optional[int] = None
+    id_establecimiento: Optional[int] = None
+    id_servicio: Optional[int] = None
     
-    class config():
+    class Config:
         orm_mode = True
-
