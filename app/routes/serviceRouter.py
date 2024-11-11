@@ -33,7 +33,7 @@ async def get_services(db: Session = Depends(get_db)):
         print("sevice" + i.serviciocol)
     return all_services; 
 
-@serviceRoutes.put("/services/${id_service}", response_model=ServiceResponse)
+@serviceRoutes.put("/services/{id_service}", response_model=ServiceResponse)
 async def change_service(id_service: int, userChange: ServiceRequest,db: Session = Depends(get_db)): 
     change_service = db.query(Service).filter(Service.id_servicio == id_service).first()
     if change_service is None:
@@ -52,7 +52,7 @@ async def change_service(id_service: int, userChange: ServiceRequest,db: Session
     db.refresh(change_service)
     return change_service
 
-@serviceRoutes.delete("/service/${id_service}", response_model=ServiceResponse)
+@serviceRoutes.delete("/service/{id_service}", response_model=ServiceResponse)
 async def delete_service(id_service: int, db: Session = Depends(get_db)):
     delete_service = db.query(Service).filter(Service.id_servicio == id_service).first()
     if delete_service is None:

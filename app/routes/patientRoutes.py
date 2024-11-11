@@ -32,7 +32,7 @@ async def get_patients(db: Session = Depends(get_db)):
     return all_patients; 
 
 
-@patientRoutes.put("/patient/${id_patient}", response_model=PatientResponse)
+@patientRoutes.put("/patient/{id_patient}", response_model=PatientResponse)
 async def change_patient(id_patient: int, employeeChange:PatientRequest,db: Session = Depends(get_db)): 
     change_patient = db.query(patient).filter(patient.id_paciente == id_patient).first()
     if change_patient is None:
@@ -51,9 +51,9 @@ async def change_patient(id_patient: int, employeeChange:PatientRequest,db: Sess
     db.refresh(change_patient)
     return change_patient
 
-@patientRoutes.delete("/patient/${id_patient}", response_model=PatientResponse)
+@patientRoutes.delete("/patient/{id_patient}", response_model=PatientResponse)
 async def delete_patient(id_patient: int, db: Session = Depends(get_db)):
-    delete_patient = db.query(patient).filter(patient.id_establecimiento == id_patient).first()
+    delete_patient = db.query(patient).filter(patient.id_paciente == id_patient).first()
     if delete_patient is None:
         raise HTTPException(
             status_code=404, 

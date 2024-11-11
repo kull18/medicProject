@@ -1,9 +1,9 @@
 from pydantic import BaseModel; 
-from datetime import datetime
+from datetime import date
 
 class QuotesResponse(BaseModel):
     id_paciente: int
-    fecha: datetime
+    fecha: date
     estatus: int 
     id_servicio: int
 

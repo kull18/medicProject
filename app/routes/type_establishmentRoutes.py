@@ -30,11 +30,11 @@ async def create_rol(post_type_establishment: Type_establishmentRequest, db: Ses
 async def get_type_establishments(db: Session = Depends(get_db)):
     all_type_establishments = db.query(TypeEstablishment).all(); 
     for i in all_type_establishments:
-        print("type_establishment" + i.serviciocol)
+        print("type_establishment" + i.tipo)
     return all_type_establishments; 
 
 
-@type_establishmentRoutes.put("/type_establishment/${id_type_establishment}", response_model=Type_establishmentResponse)
+@type_establishmentRoutes.put("/type_establishment/{id_type_establishment}", response_model=Type_establishmentResponse)
 async def change_type_establishment(id_type_establishment: int, userChange: Type_establishmentRequest,db: Session = Depends(get_db)): 
     change_type_establishment = db.query(TypeEstablishment).filter(TypeEstablishment.id_tipo_establecimiento == id_type_establishment).first()
     if change_type_establishment is None:
@@ -53,7 +53,7 @@ async def change_type_establishment(id_type_establishment: int, userChange: Type
     db.refresh(change_type_establishment)
     return change_type_establishment
 
-@type_establishmentRoutes.delete("/type_establishment/${id_type_establishment}", response_model=Type_establishmentResponse)
+@type_establishmentRoutes.delete("/type_establishment/{id_type_establishment}", response_model=Type_establishmentResponse)
 async def delete_type_establishment(id_type_establishment: int, db: Session = Depends(get_db)):
     delete_type_establishment = db.query(TypeEstablishment).filter(TypeEstablishment.id_tipo_establecimiento == id_type_establishment).first()
     if delete_type_establishment is None:

@@ -26,12 +26,10 @@ async def create_employee(post_quote: QuotesRequest, db: Session = Depends(get_d
 @quotesRoutes.get('/quotes/', status_code= status.HTTP_200_OK, response_model= List[QuotesResponse])
 async def get_quotes(db: Session = Depends(get_db)):
     all_quotes = db.query(quotes).all(); 
-    for i in all_quotes:
-        print("quote" + i.estatus)
     return all_quotes; 
 
 
-@quotesRoutes.put("/quotes/${id_quote}", response_model=QuotesResponse)
+@quotesRoutes.put("/quotes/{id_quote}", response_model=QuotesResponse)
 async def change_quote(id_quote: int, quoteChange: QuotesRequest,db: Session = Depends(get_db)): 
     change_quote = db.query(quotes).filter(quotes.id_cita == id_quote).first()
     if change_quote is None:
@@ -50,7 +48,7 @@ async def change_quote(id_quote: int, quoteChange: QuotesRequest,db: Session = D
     db.refresh(change_quote)
     return change_quote
 
-@quotesRoutes.delete("/quotes/${id_quote}", response_model=QuotesResponse)
+@quotesRoutes.delete("/quotes/{id_quote}", response_model=QuotesResponse)
 async def delete_quote(id_quote: int, db: Session = Depends(get_db)):
     delete_quote = db.query(quotes).filter(quotes.id_cita == id_quote).first()
     if delete_quote is None:

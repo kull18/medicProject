@@ -2,7 +2,6 @@ from pydantic import BaseModel;
 
 
 class RolBase(BaseModel):
-    id_rol: int
     description: str
 
     class config:

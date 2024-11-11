@@ -30,7 +30,7 @@ async def get_employees(db: Session = Depends(get_db)):
     return all_campaigns; 
 
 
-@campaignsRoutes.put("/campaigns/${id_campaign}", response_model=CampaignsResponse)
+@campaignsRoutes.put("/campaigns/{id_campaign}", response_model=CampaignsResponse)
 async def change_campaign(id_campaign: int, campaignChanges: CampaignsRequest,db: Session = Depends(get_db)): 
     change_campaign = db.query(campaigns).filter(campaigns.id_campañas == id_campaign).first()
     if change_campaign is None:
@@ -50,7 +50,7 @@ async def change_campaign(id_campaign: int, campaignChanges: CampaignsRequest,db
     db.refresh(change_campaign)
     return change_campaign
 
-@campaignsRoutes.delete("/campaignDelete/${id_campaign}", response_model=CampaignsResponse)
+@campaignsRoutes.delete("/campaignDelete/{id_campaign}", response_model=CampaignsResponse)
 async def delete_campaign(id_campaign: int, db: Session = Depends(get_db)):
     delete_campaign = db.query(campaigns).filter(campaigns.id_campañas == id_campaign).first()
     if delete_campaign is None:

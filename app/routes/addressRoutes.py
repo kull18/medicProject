@@ -32,7 +32,7 @@ async def get_employees(db: Session = Depends(get_db)):
     return all_address; 
 
 
-@addressRoutes.put("/address/${id_address}", response_model=AddressResponse)
+@addressRoutes.put("/address/{id_address}", response_model=AddressResponse)
 async def change_address(id_address: int, employeeChange: AddressRequest,db: Session = Depends(get_db)): 
     change_address = db.query(address).filter(address.id_dirección == id_address).first()
     if change_address is None:
@@ -52,7 +52,7 @@ async def change_address(id_address: int, employeeChange: AddressRequest,db: Ses
     db.refresh(change_address)
     return change_address
 
-@addressRoutes.delete("/addressDelete/${id_address}", response_model=AddressResponse)
+@addressRoutes.delete("/addressDelete/{id_address}", response_model=AddressResponse)
 async def delete_address(id_address: int, db: Session = Depends(get_db)):
     delete_address = db.query(address).filter(address.id_dirección == id_address).first()
     if delete_address is None:
