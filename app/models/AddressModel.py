@@ -1,14 +1,13 @@
 from pydantic import BaseModel; 
-
+from typing import Optional
 class AddressResponse(BaseModel):
-    id_dirección: int
-    latitud: float
-    longitud: float
-    descripcion: str
-    calle: str
-    colonia: str
-    numero: int
+    latitud: Optional[float] = None
+    longitud: Optional[float] = None
+    descripcion: Optional[str] = None
+    calle: Optional[str] = None
+    colonia: Optional[str] = None
+    numero: Optional[int] = None
     
-    
-    class config():
+    class Config():
         orm_mode = True
+        arbitrary_types_allowed = True

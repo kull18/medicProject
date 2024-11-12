@@ -8,11 +8,10 @@ from app.shared.config.db import get_db, Base
 import app.models
 from app.shared.config.s3Connection import getS3_connection
 from app.models.Establishment import Establishment
-from app.models.Servicie import Service
+from app.models.type_establishment import TypeEstablishment
 from app.schemas.Establishment import EstablishmentRequest, EstablishmentResponse
 from app.models.EstablishmentModel import EstablishmentResponse
 import os
-
 
 SupportedTypes = ["image/jpeg", "image/png"]
 s3 = getS3_connection(); 
@@ -40,17 +39,18 @@ async def getEstablishmentByName(name_establishment: str, db: Session = Depends(
             status_code=status.HTTP_400_BAD_REQUEST
         )
     return establishment_name
-
-@establishmentRoutes.get("/searchEstablishmentService/{type_service}", status_code=status.HTTP_201_CREATED, response_model=EstablishmentResponse)
+'''
+@establishmentRoutes.get("/searchEstablishmentService/{type_service}", status_code=status.HTTP_201_CREATED, response_model=List[establishmentModelJoin])
 async def getEstablishmentByName(type_service: str, db: Session = Depends(get_db)):
-    establishment_name = db.query(Service, Establishment).join(Establishment).filter(Service.tipo == type_service).all()
+    establishment_name = db.query(Establishment).join(Establishment, TypeEstablishment.tipo == type_service).all()
 
     if establishment_name is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST
         )
+    
     return establishment_name
-
+'''
 @establishmentRoutes.get('/establishment/', status_code= status.HTTP_200_OK, response_model= List[EstablishmentResponse])
 async def get_establishments(db: Session = Depends(get_db)):
     all_establishments = db.query(Establishment).all(); 

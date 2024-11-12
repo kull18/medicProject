@@ -25,8 +25,6 @@ async def create_bill(post_bill: BillsRequest, db: Session = Depends(get_db)):
 @billRoutes.get('/bills/', status_code= status.HTTP_200_OK, response_model= List[BillsResponse])
 async def get_employees(db: Session = Depends(get_db)):
     all_bills = db.query(bills).all(); 
-    for i in all_bills:
-        print("campaign" + i.descripción)
     return all_bills; 
 
 

@@ -1,23 +1,23 @@
 from pydantic import BaseModel; 
 from datetime import time
+from typing import Optional
 
 class ScheduleDoctorBase(BaseModel):
-    día: str
-    entrada: time 
-    salida: time
+    día: Optional[str]
+    entrada: Optional[time]
+    salida: Optional[time]
 
-    class config:
+    class Config:
         orm_mode = True
         arbitrary_types_allowed = True
 
 class ScheduleDoctorRequest(ScheduleDoctorBase):
-    class config:
+    class Config:
         orm_mode = True
         arbitrary_types_allowed = True
 
 class ScheduleDoctorResponse(ScheduleDoctorBase):
     id: int
 
-
-    class config:
+    class Config:
         orm_mode = True

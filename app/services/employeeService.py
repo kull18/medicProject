@@ -1,15 +1,15 @@
 from sqlalchemy.orm import Session
-from app.schemas.Employee import EmployeeRequest
-from app.models.Employee import employee
+from app.schemas.User import UserRequest
+from app.models.User import user
 from app.shared.utils.security import hash_password
 from fastapi import HTTPException
 
 
-def createUser(db: Session, employee_data: EmployeeRequest):
+def createUser(db: Session, employee_data: UserRequest):
     try:
         hashed_password = hash_password(employee_data.contraseña)
         
-        db_user = employee(
+        db_user = user(
             id_rol=employee_data.id_rol,
             nombre=employee_data.nombre,
             contraseña=hashed_password,
@@ -27,5 +27,5 @@ def createUser(db: Session, employee_data: EmployeeRequest):
 
 
 def getUsers(db:Session):
-    datos =   db.query(employee).all()
+    datos =   db.query(user).all()
     return datos

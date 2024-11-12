@@ -6,7 +6,7 @@ from app.shared.config.db import engine, get_db, Base
 import app.models
 from app.models.type_establishment import TypeEstablishment
 from app.schemas.type_establishment import Type_establishmentRequest, Type_establishmentResponse
-from app.models.type_stablishmentModel import Type_establishmentResponse
+from app.models.type_establishmentModel import Type_establishmentResponse
 Base.metadata.create_all(bind=engine)
 
 

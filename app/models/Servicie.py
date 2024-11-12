@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, ForeignKey,String, INT
 from app.shared.config.db import Base
 
-
 class Service(Base):
     __tablename__ = "servicio"
 
@@ -10,3 +9,5 @@ class Service(Base):
     tipo = Column(String(20), nullable=True)
     costo = Column(Integer, nullable=True)
     serviciocol = Column(String(50), nullable=True)
+
+

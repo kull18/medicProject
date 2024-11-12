@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
-
 class TokenData(BaseModel):
-    username = str | None = None 
+    nombre: str | None = None
+    id_rol: str | None = None

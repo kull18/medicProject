@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String, INT, ForeignKey
 from app.shared.config.db import Base
 
-class employee(Base):
-    __tablename__ = "empleado"
+class user(Base):
+    __tablename__ = "usuario"
 
-    id_empleado = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    id_usuario = Column(Integer, primary_key=True, autoincrement=True, index=True)
     id_rol = Column(Integer, ForeignKey("rol.id_rol"))
     nombre = Column(String(50), nullable= True)
     contraseña = Column(String(255), nullable= True)

@@ -5,16 +5,15 @@ class CampaignsBase(BaseModel):
     descripción: str
     id_establecimiento: int
 
-    class config:
+    class Config:
         orm_mode = True
 
 class CampaignsRequest(CampaignsBase):
-    class config:
+    class Config:
         orm_mode = True
 
 class CampaignsResponse(CampaignsBase):
     id: int
 
-
-    class config:
+    class Config:
         orm_mode = True

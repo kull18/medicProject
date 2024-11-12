@@ -1,18 +1,19 @@
 from pydantic import BaseModel; 
+from typing import Optional
 
 class AddressBase(BaseModel):
-    latitud: float
-    longitud: float
-    descripcion: str
-    calle: str
-    colonia: str
-    numero: int
+    latitud: Optional[float] = None
+    longitud: Optional[float] = None
+    descripcion: Optional[str] = None
+    calle: Optional[str] = None
+    colonia: Optional[str] = None
+    numero: Optional[int] = None
     
-    class config:
+    class Config:
         orm_mode = True
 
 class AddressRequest(AddressBase):
-    class config:
+    class Config:
         orm_mode = True
 
 class AddressResponse(AddressBase):

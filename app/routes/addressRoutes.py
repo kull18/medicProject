@@ -3,8 +3,8 @@ from fastapi import FastAPI, Depends,status, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.shared.config.db import engine, get_db, Base
-import app.models
 from app.models.Address import address
+from app.shared.middlewares.authMiddleWare import get_current_user
 from app.schemas.Address import AddressRequest, AddressResponse
 from app.models.AddressModel import AddressResponse
 
@@ -17,18 +17,16 @@ addressRoutes
 
 
 @addressRoutes.post('/address/', status_code=status.HTTP_201_CREATED, response_model=AddressResponse)
-async def create_employee(post_address: AddressRequest, db: Session = Depends(get_db)):
+async def create_employee(post_address: AddressRequest, db: Session = Depends(get_db), token : str= Depends(get_current_user)):
     new_address = address(**post_address.model_dump())
     db.add(new_address)
     db.commit()
     db.refresh(new_address)
     return new_address.__dict__
 
-@addressRoutes.get('/address/', status_code= status.HTTP_200_OK, response_model= List[AddressResponse])
-async def get_employees(db: Session = Depends(get_db)):
+@addressRoutes.get('/address/',status_code= status.HTTP_200_OK,  response_model= List[AddressResponse])
+async def get_employees(db: Session = Depends(get_db),token: str = Depends(get_current_user)):
     all_address = db.query(address).all(); 
-    for i in all_address:
-        print("address" + i.descripcion)
     return all_address; 
 
 

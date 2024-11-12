@@ -30,8 +30,7 @@ async def create_rol(post_rol: rolRequest, db: Session = Depends(get_db)):
 async def get_roles(db: Session = Depends(get_db)):
     all_roles = db.query(rol).all(); 
     for i in all_roles:
-        print("rol" + i.description
-              )
+        print("rol" + i.description)
     return all_roles; 
 
 @rolRoutes.put("/users/{id_rol}", response_model=rolResponse)

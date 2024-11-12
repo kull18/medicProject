@@ -7,16 +7,15 @@ class ServiceBase(BaseModel):
     costo: int
     serviciocol: str
 
-    class config:
+    class Config:
         orm_mode = True
 
 class ServiceRequest(ServiceBase):
-    class config:
+    class Config:
         orm_mode = True
 
 class ServiceResponse(ServiceBase):
     id: int
 
-
-    class config:
+    class Config:
         orm_mode = True

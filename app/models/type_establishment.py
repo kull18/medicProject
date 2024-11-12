@@ -7,3 +7,4 @@ class TypeEstablishment(Base):
 
     id_tipo_establecimiento = Column(Integer, autoincrement=True,primary_key=True, index=True)
     tipo = Column(String(20), nullable=True)
+

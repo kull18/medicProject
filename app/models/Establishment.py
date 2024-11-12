@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, INT, ForeignKey, Time
 from app.shared.config.db import Base
-
+from sqlalchemy.orm import relationship
 
 class Establishment(Base):
     __tablename__ = "establecimiento"
@@ -10,3 +10,7 @@ class Establishment(Base):
     id_dirección = Column(Integer, ForeignKey("dirección.id_dirección"),nullable=True)
     id_horario = Column(Integer, ForeignKey("horario.id_horario"), nullable=True)   
     nombre = Column(String(100), nullable=True)
+
+
+
+

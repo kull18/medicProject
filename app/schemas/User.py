@@ -1,7 +1,7 @@
 from pydantic import BaseModel; 
 from typing import Optional
 
-class EmployeeBase(BaseModel):
+class UserBase(BaseModel):
     id_rol: Optional[int] = None
     nombre: str
     contraseña: str
@@ -9,24 +9,24 @@ class EmployeeBase(BaseModel):
     id_establecimiento: Optional[int] = None
     id_servicio: Optional[int] = None
 
-    class config:
+    class Config:
         orm_mode = True
-class EmployeeLoginBase(BaseModel):
+class UserLoginBase(BaseModel):
     nombre: str
     contraseña: str
-    class config:
+    class Config:
         orm_mode = True
 
-class EmployeeRequest(EmployeeBase):
-    class config:
+class UserRequest(UserBase):
+    class Config:
         orm_mode = True
 
-class EmployeeLoginReques(EmployeeLoginBase):
-    class config:
+class UserLoginReques(UserLoginBase):
+    class Config:
         orm_mode = True
 
-class EmployeeResponse(EmployeeBase):
+class UserResponse(UserBase):
     id: int
 
-    class config:
+    class Config:
         orm_mode = True
