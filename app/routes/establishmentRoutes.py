@@ -6,12 +6,14 @@ import magic
 from io import BytesIO
 from app.shared.config.db import get_db, Base
 import app.models
+from app.models.Address import Address
 from app.shared.config.s3Connection import getS3_connection
 from app.models.Establishment import Establishment
 from app.models.type_establishment import TypeEstablishment
 from app.schemas.Establishment import EstablishmentRequest, EstablishmentResponse
 from app.models.EstablishmentModel import EstablishmentResponse
 import os
+from app.models.Servicie import Service
 
 SupportedTypes = ["image/jpeg", "image/png"]
 s3 = getS3_connection(); 
@@ -39,6 +41,52 @@ async def getEstablishmentByName(name_establishment: str, db: Session = Depends(
             status_code=status.HTTP_400_BAD_REQUEST
         )
     return establishment_name
+@establishmentRoutes.get("/findEstablishmentByService/{service_type}")
+async def get_establishment_by_name(service_type: str, db: Session = Depends(get_db)):
+    search_establishment = db.query(Establishment, Service, Address).join(Service, Service.id_establecimiento == Establishment.id_establecimiento).join(Address, Address.id_dirección == Establishment.id_dirección).filter(Service.tipo == service_type).all()
+
+    if search_establishment is None: 
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="error al hacer la busqueda"
+        )
+    
+    data_found_establishments = []
+    for establishment, service, address in search_establishment:
+        data_found_establishments.append({
+            "establishments": [
+                {
+                    "id_establishment": establishment.id_establecimiento,
+                    "name": establishment.nombre,
+                    "dirección":  address.id_dirección
+                }
+            ]
+    })
+        
+@establishmentRoutes.get("/findEstablishmentByTypeCategory/{service_type}/{category}")
+async def get_establishment_by_type_category(service_type: str, category: str,db: Session = Depends(get_db)):
+    search_establishment = db.query(Establishment, Service, Address).join(Service, Service.id_establecimiento == Establishment.id_establecimiento).join(Address, Address.id_dirección == Establishment.id_dirección).filter(Service.tipo == service_type).filter(Establishment.categoria == category).all()
+
+    if search_establishment is None: 
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="error al hacer la busqueda"
+        )
+    
+    data_found_establishments = []
+    for establishment, service, address in search_establishment:
+        data_found_establishments.append({
+            "establishments": [
+                {
+                    "id_establishment": establishment.id_establecimiento,
+                    "name": establishment.nombre,
+                    "dirección":  address.id_dirección
+                }
+            ]
+    })
+        
 '''
 @establishmentRoutes.get("/searchEstablishmentService/{type_service}", status_code=status.HTTP_201_CREATED, response_model=List[establishmentModelJoin])
 async def getEstablishmentByName(type_service: str, db: Session = Depends(get_db)):

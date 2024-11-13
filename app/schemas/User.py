@@ -2,7 +2,7 @@ from pydantic import BaseModel;
 from typing import Optional
 
 class UserBase(BaseModel):
-    id_rol: Optional[int] = None
+    id_rol: int
     nombre: str
     contraseña: str
     id_horario: Optional[int] = None

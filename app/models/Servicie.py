@@ -8,6 +8,5 @@ class Service(Base):
     id_establecimiento = Column(Integer, ForeignKey("establecimiento.id_establecimiento"),nullable=True)
     tipo = Column(String(20), nullable=True)
     costo = Column(Integer, nullable=True)
-    serviciocol = Column(String(50), nullable=True)
 
 

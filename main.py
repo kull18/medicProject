@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.rolRouter import rolRoutes
 from app.routes.addressRoutes import addressRoutes
-from app.routes.billRoutes import billRoutes
 from app.routes.type_establishmentRoutes import type_establishmentRoutes
 from app.routes.quotesRoutes import quotesRoutes
+from app.routes.billRoutes import billRoutes
 from app.routes.scheduleRoutes import scheduleRoutes
 from app.routes.serviceDoctorRoutes import scheduleDoctorRoutes
 from app.routes.establishmentRoutes import establishmentRoutes

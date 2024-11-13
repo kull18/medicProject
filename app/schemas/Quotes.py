@@ -1,11 +1,14 @@
 from pydantic import BaseModel; 
-from datetime import date
+from datetime import date, time
 
 class QuotesBase(BaseModel):
+
     id_usuario: int
     fecha: date
-    estatus: int 
+    horario: time
+    id_doctor: int
     id_servicio: int
+
 
     class Config:
         orm_mode = True

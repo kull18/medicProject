@@ -5,14 +5,18 @@ from typing import List
 from app.shared.utils.security import hash_password
 from app.shared.config.db import engine, get_db, Base
 import app.models
+from app.models.EstablishmentModel import EstablishmentResponse
 from fastapi.responses import JSONResponse
 from app.services.authService import loguearse
 from app.models.User import user
+from app.models.Establishment import Establishment
 from app.schemas.TokenModel import AccessToken
 from app.services.employeeService import createUser
 from app.schemas.type_establishment import Type_establishmentResponse
 from app.schemas.User import UserRequest,UserLoginReques, UserResponse
 from app.models.UserModel import UserResponse
+from app.models.type_establishment import TypeEstablishment
+from app.models.Schedule import Schedule
 
 userRoutes = APIRouter(
     tags=["user"],
@@ -33,6 +37,37 @@ async def get_employees(db: Session = Depends(get_db)):
     return all_users; 
 
 
+@userRoutes.get("/establishmentInformation/", status_code=status.HTTP_200_OK)
+async def establishment_information(db: Session = Depends(get_db)):
+    establishemnts = db.query(Establishment, Schedule, TypeEstablishment).join(Schedule, Establishment.id_horario == Schedule.id_horario).join(TypeEstablishment, Establishment.id_tipo_establecimiento == TypeEstablishment.id_tipo_establecimiento).all()
+    results = []; 
+
+    print(establishemnts)
+    for establecimiento, horario, tipo_establecimiento in establishemnts:
+        results.append({
+            "id _establecimiento": establecimiento.id_establecimiento,
+            "nombre": establecimiento.nombre,
+            "descripción":establecimiento.descripción,
+            "entrada": horario.entrada,
+            "salida": horario.salida,
+            "tipo_establecimiento": tipo_establecimiento.tipo
+     })
+        return results
+
+@userRoutes.get("/allInformationService/", status_code=status.HTTP_200_OK)
+async def get_all_Information_Service(db: Session = Depends(get_db)):
+    all_information_service = db.query(user, Establishment).join(Establishment, user.id_establecimiento == Establishment.id_establecimiento).all(); 
+    data_all_information_service = []; 
+
+    for medic, establishment in all_information_service:
+        data_all_information_service.append({
+            "id_medic": medic.id_usuario,
+            "medicName": medic.nombre,
+            "id_establishment": establishment.id_establecimiento,
+            "nameEstablishment": establishment.nombre
+        })
+    return data_all_information_service
+
 @userRoutes.post("/login", response_model=AccessToken)
 async def login_user(user: UserLoginReques, db: Session = Depends(get_db)):
     try:
@@ -41,15 +76,24 @@ async def login_user(user: UserLoginReques, db: Session = Depends(get_db)):
         if not userFind:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="error al logear"
-            )
+                detail="Error al logear"
+         )
         
-        response = JSONResponse(content={"access_token": userFind.access_token, "token_type": "bearer"})
+        data_user = userFind.data_user.dict() if hasattr(userFind.data_user, "dict") else userFind.data_user
+
+        response = JSONResponse(
+            content={
+                "token_access": userFind.access_token, 
+                "type_token": "bearer",
+                "data_user": data_user
+            }
+        )
+
         response.headers["Authorization"] = f"Bearer {userFind.access_token}"
 
-        return AccessToken(access_token=userFind.access_token, data_user=userFind.data_user)
+        return response
     except HTTPException as e:
-        raise e 
+        raise e
 
 @userRoutes.put("/user/{id_user}", response_model=UserResponse)
 async def change_user(id_user: int, employeeChange: UserRequest,db: Session = Depends(get_db)): 

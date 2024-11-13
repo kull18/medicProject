@@ -15,20 +15,14 @@ def loguearse(Employee: UserLoginReques, db: Session):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="El empleado no está registrado"
         )
-    role = db.query(rol).filter(rol.id_rol == db_user.id_rol).first()
-
-    if not role:
-        raise HTTPException(
-            status_code = status.HTTP_400_BAD_REQUEST
-        )
-    
-    print(role.description)
 
     if not verify_password(Employee.contraseña, db_user.contraseña):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Contraseña incorrecta"
         )
+    
+    role = db.query(rol).filter(rol.id_rol == db_user.id_rol).first()
 
     data_user = DataUserToken(
         nombre=db_user.nombre,

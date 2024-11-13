@@ -2,6 +2,10 @@ from fastapi import APIRouter, Form, Depends;
 from fastapi import FastAPI, Depends,status, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+from app.models.Schedule import Schedule
+from app.models.Servicie import Service
+
+
 from app.shared.config.db import get_db, Base
 import app.models
 from app.models.ScheduleDoctor import ScheduleDoctor
@@ -27,7 +31,7 @@ async def create_employee(post_scheduleDoctor: ScheduleDoctorRequest, db: Sessio
 async def get_quotes(db: Session = Depends(get_db)):
     all_schedules = db.query(ScheduleDoctor).all(); 
     return all_schedules; 
-
+ 
 
 @scheduleDoctorRoutes.put("/scheduleDoctor/{id_schedule}", response_model=ScheduleDoctorResponse)
 async def change_scheduleDoctor(id_sceduleDoctor: int, scheduleChange: ScheduleDoctorRequest,db: Session = Depends(get_db)): 

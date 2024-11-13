@@ -6,5 +6,6 @@ class bills(Base):
 
     folio = Column(Integer, autoincrement=True,primary_key=True,index=True)
     descripción = Column(String(100), nullable=True)
+    id_cita = Column(Integer, ForeignKey("citas.id_cita"), nullable=True)
     total = Column(Integer ,nullable=True)
     comisión = Column(String(50), nullable=True)

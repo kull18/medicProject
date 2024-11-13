@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Float,String, INT, ForeignKey
 from app.shared.config.db import Base
 
-class address(Base):
+class Address(Base):
     __tablename__ = "dirección"
 
     id_dirección = Column(Integer, primary_key=True, autoincrement=True, index=True)

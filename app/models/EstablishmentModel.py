@@ -3,6 +3,8 @@ from typing import Optional
 class EstablishmentResponse(BaseModel):
 
     id_tipo_establecimiento: Optional[int] = None
+    descripción: Optional[str] = None
+    categoria: Optional[str] = None
     id_dirección: Optional[int] = None  
     id_horario: Optional[int] = None
     nombre: Optional[str] = None

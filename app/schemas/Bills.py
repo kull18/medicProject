@@ -3,6 +3,7 @@ from pydantic import BaseModel;
 class BillsBase(BaseModel):
     
     descripción: str
+    id_cita: int
     total: int
     comisión: str
     

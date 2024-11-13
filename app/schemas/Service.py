@@ -5,7 +5,6 @@ class ServiceBase(BaseModel):
     id_establecimiento: int
     tipo: str
     costo: int
-    serviciocol: str
 
     class Config:
         orm_mode = True
