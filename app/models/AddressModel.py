@@ -1,6 +1,7 @@
 from pydantic import BaseModel; 
 from typing import Optional
 class AddressResponse(BaseModel):
+    id_dirección: Optional[int] = None
     latitud: Optional[float] = None
     longitud: Optional[float] = None
     descripcion: Optional[str] = None

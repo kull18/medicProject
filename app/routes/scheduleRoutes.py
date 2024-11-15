@@ -16,47 +16,61 @@ scheduleRoutes = APIRouter(
 
 @scheduleRoutes.post('/schedule/', status_code=status.HTTP_201_CREATED, response_model=ScheduleResponse)
 async def create_employee(post_schedule: ScheduleRequest, db: Session = Depends(get_db)):
-    new_schedule = Schedule(**post_schedule.model_dump())
-    db.add(new_schedule)
-    db.commit()
-    db.refresh(new_schedule)
-    return new_schedule.__dict__
-
+    
+    try:
+      new_schedule = Schedule(**post_schedule.model_dump())
+      db.add(new_schedule)
+      db.commit()
+      db.refresh(new_schedule)
+      return new_schedule.__dict__
+    except Exception as e:
+        return e
 
 @scheduleRoutes.get('/schedule/', status_code= status.HTTP_200_OK, response_model= List[ScheduleResponse])
 async def get_quotes(db: Session = Depends(get_db)):
-    all_schedules = db.query(Schedule).all(); 
-    return all_schedules; 
 
+    try:
+      all_schedules = db.query(Schedule).all(); 
+      return all_schedules; 
+    except Exception as e:
+        return e
 
 @scheduleRoutes.put("/schedule/{id_schedule}", response_model=ScheduleResponse)
 async def change_schedule(id_scedule: int, scheduleChange: ScheduleRequest,db: Session = Depends(get_db)): 
-    change_schedule  = db.query(Schedule).filter(Schedule.id_horario == id_scedule).first()
-    if change_schedule is None:
+
+    try:
+      change_schedule  = db.query(Schedule).filter(Schedule.id_horario == id_scedule).first()
+      if change_schedule is None:
         raise HTTPException(
             status_code=404,
             detail="schedule no encontrado"
         )
     
-    for key, value in scheduleChange.dict().items():
+      for key, value in scheduleChange.dict(exclude_unset=True).items():
         setattr(
             change_schedule, 
             key, value
         )
     
-    db.commit()
-    db.refresh(change_schedule)
-    return change_schedule
-
+      db.commit()
+      db.refresh(change_schedule)
+      return change_schedule
+    except Exception as e:
+       return e
+    
 @scheduleRoutes.delete("/schedule/{id_schedule}", response_model=ScheduleResponse)
 async def delete_schedule(id_schedule: int, db: Session = Depends(get_db)):
-    delete_schedule = db.query(Schedule).filter(Schedule.id_horario == id_schedule).first()
-    if delete_schedule is None:
+
+    try:
+      delete_schedule = db.query(Schedule).filter(Schedule.id_horario == id_schedule).first()
+      if delete_schedule is None:
         raise HTTPException(
             status_code=404, 
             detail="quote no encontrado"
         )
     
-    db.delete(delete_schedule)
-    db.commit()
-    return delete_schedule
+      db.delete(delete_schedule)
+      db.commit()
+      return delete_schedule
+    except Exception as e:
+       return e

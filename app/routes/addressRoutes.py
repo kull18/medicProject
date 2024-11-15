@@ -13,53 +13,60 @@ addressRoutes = APIRouter(
     deprecated=False
 ); 
 
-addressRoutes
-
-
 @addressRoutes.post('/address/', status_code=status.HTTP_201_CREATED, response_model=AddressResponse)
 async def create_employee(post_address: AddressRequest, db: Session = Depends(get_db)):
-    new_address = Address(**post_address.model_dump())
-    db.add(new_address)
-    db.commit()
-    db.refresh(new_address)
-    return new_address.__dict__
+
+   try:
+       new_address = Address(**post_address.model_dump())
+       db.add(new_address)
+       db.commit()
+       db.refresh(new_address)
+       return new_address.__dict__
+   except Exception as e:
+       return e; 
 
 @addressRoutes.get('/address/',status_code= status.HTTP_200_OK,  response_model= List[AddressResponse])
 async def get_employees(db: Session = Depends(get_db)):
-    all_address = db.query(Address).all(); 
-    return all_address; 
 
+    try:  
+       all_address = db.query(Address).all(); 
+       return all_address; 
+    except Exception as e:
+       return e; 
 
 @addressRoutes.put("/address/{id_address}", response_model=AddressResponse)
 async def change_address(id_address: int, employeeChange: AddressRequest,db: Session = Depends(get_db)): 
-    change_address = db.query(Address).filter(Address.id_dirección == id_address).first()
-    if change_address is None:
 
+    try:
+       change_address = db.query(Address).filter(Address.id_dirección == id_address).first()
+       if change_address is None:
         raise HTTPException(
             status_code=404,
             detail="address no encontrado"
         )
-    
-    for key, value in employeeChange.dict().items():
+       for key, value in employeeChange.dict(exclude_unset=True).items():
         setattr(
             change_address, 
             key, value
         )
-    
-    db.commit()
-    db.refresh(change_address)
-    return change_address
+       db.commit()
+       db.refresh(change_address)
+       return change_address
+    except Exception as e:
+       return e; 
 
 @addressRoutes.delete("/addressDelete/{id_address}", response_model=AddressResponse)
 async def delete_address(id_address: int, db: Session = Depends(get_db)):
-    delete_address = db.query(Address).filter(Address.id_dirección == id_address).first()
-    if delete_address is None:
+    try: 
+       delete_address = db.query(Address).filter(Address.id_dirección == id_address).first()
+       if delete_address is None:
         raise HTTPException(
             status_code=404, 
             detail="address no encontrado"
         )
     
-    db.delete(delete_address)
-    db.commit()
-    return delete_address
-    
+       db.delete(delete_address)
+       db.commit()
+       return delete_address
+    except Exception as e:
+       return e; 

@@ -6,6 +6,7 @@ class QuotesBase(BaseModel):
     id_usuario: int
     fecha: date
     horario: time
+    estatus: str
     id_doctor: int
     id_servicio: int
 

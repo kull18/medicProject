@@ -13,7 +13,6 @@ def createUser(db: Session, employee_data: UserRequest):
             id_rol=employee_data.id_rol,
             nombre=employee_data.nombre,
             contraseña=hashed_password,
-            id_horario=employee_data.id_horario,
             id_establecimiento=employee_data.id_establecimiento,
             id_servicio=employee_data.id_servicio
         )
