@@ -12,6 +12,9 @@ from app.models.User import user
 from app.models.Establishment import Establishment
 from app.schemas.TokenModel import AccessToken
 from app.models.ScheduleDoctor import ScheduleDoctor
+from app.models.Address import Address
+from app.models.Quotes import quotes
+from app.models.Servicie import Service
 from app.services.employeeService import createUser
 from app.schemas.type_establishment import Type_establishmentResponse
 from app.schemas.User import UserRequest,UserLoginReques, UserResponse
@@ -42,39 +45,42 @@ async def get_employees(db: Session = Depends(get_db)):
       return all_users; 
     except Exception as e:
         return e; 
-
+'''''
 @userRoutes.get("/establishmentInformation/", status_code=status.HTTP_200_OK)
 async def establishment_information(db: Session = Depends(get_db)):
 
     try:
-      establishemnts = db.query(Establishment, Schedule, TypeEstablishment).join(Schedule, Establishment.id_horario == Schedule.id_horario).join(TypeEstablishment, Establishment.id_tipo_establecimiento == TypeEstablishment.id_tipo_establecimiento).all()
-      results = []; 
+      establishment_name = db.query(Establishment, Address).join(Address, Address.id_dirección == Establishment.id_dirección).all()
+     
+      if establishment_name is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+      print(establishment_name)
+      data_establishment = []
+      for establishment, address in establishment_name:
+         data_establishment.append({
+            "id_establecimiento": establishment.id_establecimiento,
+            "nombre": establishment.nombre,
+            "direccion": address
+         })
 
-      print(establishemnts)
-      for establecimiento, horario, tipo_establecimiento in establishemnts:
-        results.append({
-            "id _establecimiento": establecimiento.id_establecimiento,
-            "nombre": establecimiento.nombre,
-            "descripción":establecimiento.descripción,
-            "entrada": horario.entrada,
-            "salida": horario.salida,
-            "tipo_establecimiento": tipo_establecimiento.tipo
-      })
-      return results
+
+      return data_establishment
     except Exception as e:
        return e
-    
+'''''  
 @userRoutes.get("/allInformationService/", status_code=status.HTTP_200_OK)
 async def get_all_Information_Service(db: Session = Depends(get_db)):
 
     try:
-      all_information_service = db.query(user, Establishment).join(Establishment, Establishment.id_establecimiento == user.id_establecimiento).all() 
+      all_information_service = db.query(Service, Establishment).join(Establishment, Establishment.id_establecimiento == Service.id_establecimiento).all() 
       data_all_information_service = []; 
 
-      for medic, establishment in all_information_service:
+      for service, establishment in all_information_service:
         data_all_information_service.append({
-            "id_medic": medic.id_usuario,
-            "medicName": medic.nombre,
+            "id_service": service.id_servicio,
+            "service": service.tipo,
             "id_establishment": establishment.id_establecimiento,
             "nameEstablishment": establishment.nombre
       })
@@ -83,25 +89,161 @@ async def get_all_Information_Service(db: Session = Depends(get_db)):
     except Exception as e:
         return e
 
-@userRoutes.get("/allHours/", status_code=status.HTTP_200_OK)
-async def get_all_hours_doctor(db: Session = Depends(get_db)):
+@userRoutes.get("/allSerivcesDoctor/{id_service}", status_code=status.HTTP_200_OK)
+async def get_all_Information_Service(id_service: int, db: Session = Depends(get_db)):
+    try:
+        all_information_service = db.query(Service, user, Establishment).join(
+            user, user.id_servicio == Service.id_servicio
+        ).join(
+            Establishment, Establishment.id_establecimiento == user.id_establecimiento
+        ).filter(Service.id_servicio == id_service).all()
+
+        data_all_information_service = []
+
+        for service, User, establishment in all_information_service:
+            data_all_information_service.append({
+                "id_service": service.id_servicio,
+                "service": service.tipo,
+                "id_doctor": User.id_usuario,
+                "name": User.nombre,
+                "nombre_establishment": establishment.nombre
+            })
+
+        return data_all_information_service
+
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@userRoutes.get("/allServiceDoctorById_establishment/{id_establishment}", status_code=status.HTTP_200_OK)
+async def get_all_Information_Service(id_establishment: int, db: Session = Depends(get_db)):
+    try:
+        all_information_service = db.query(Service, user, Establishment).join(
+            user, user.id_servicio == Service.id_servicio
+        ).join(
+            Establishment, Establishment.id_establecimiento == user.id_establecimiento
+        ).filter(Establishment.id_establecimiento == id_establishment).all()
+
+        data_all_information_service = []
+
+        for service, User, establishment in all_information_service:
+            data_all_information_service.append({
+                "id_service": service.id_servicio,
+                "service": service.tipo,
+                "id_doctor": User.id_usuario,
+                "name": User.nombre
+            })
+
+        return data_all_information_service
+
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+@userRoutes.get("/allInformationServiceById/{id_establishment}", status_code=status.HTTP_200_OK)
+async def get_all_Information_Service(id_establishment: int,db: Session = Depends(get_db)):
 
     try:
-        all_hours = db.query(user, ScheduleDoctor).join(ScheduleDoctor, user.id_usuario == ScheduleDoctor.id_usuario).all();
-        data_all_hours = []
+      all_information_service = db.query(Service, Establishment).join(Establishment, Establishment.id_establecimiento == Service.id_establecimiento).filter(Establishment.id_establecimiento == id_establishment).all() 
+      data_all_information_service = []; 
 
-        print(all_hours)
+      for service, establishment in all_information_service:
+        data_all_information_service.append({
+            "id_service": service.id_servicio,
+            "service": service.tipo,
+            "id_establishment": establishment.id_establecimiento,
+            "nameEstablishment": establishment.nombre
+      })
 
-        for user, scheduledoctor in all_hours:
-            data_all_hours.append({
-                "id_doctor": user.id_usuario,
-                "horarios": {
-                    "día": scheduledoctor.día,
-                    "entrada": scheduledoctor.entrada,
-                    "salida": scheduledoctor.salida
+      return data_all_information_service
+    except Exception as e:
+        return e
+
+
+@userRoutes.get("/allInformationIdEstablish/{id_establishment}", status_code=status.HTTP_200_OK)
+async def get_all_Information_Service(id_establishment: int, db: Session = Depends(get_db)):
+    try:
+
+        all_information_service = db.query(Establishment, Address, Service, Schedule).join(
+            Address, Address.id_dirección == Establishment.id_dirección
+        ).join(
+            Service, Service.id_establecimiento == Establishment.id_establecimiento
+        ).join(Schedule, Schedule.id_horario == Establishment.id_horario) \
+        .filter(
+            Establishment.id_establecimiento == id_establishment
+        ).all()
+
+        if not all_information_service:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Establecimiento no encontrado")
+
+        establishment_data = None
+        services = []
+
+        for establishment, address, service, schedule in all_information_service:
+            if not establishment_data:
+                establishment_data = {
+                    "id_establishment": establishment.id_establecimiento,
+                    "nameEstablishment": establishment.nombre,
+                    "descripcion": establishment.descripción,
+                    "direccion": {
+                        "calle": address.calle,
+                        "colonia": address.colonia,
+                        "numero": address.numero
+                    },
+                    "horario": schedule
                 }
+            
+            services.append({
+                "id_service": service.id_servicio,
+                "service": service.tipo,
+                "costo": service.costo
             })
-            return data_all_hours
+
+        establishment_data["servicios"] = services
+
+        return establishment_data
+
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@userRoutes.get("/allQuoteDoctor/{id_user}", status_code=200)
+async def get_all_quotes_doctor(id_user: int, db: Session = Depends(get_db)):
+   try:
+      query = db.query(quotes, user).join(user, user.id_usuario == quotes.id_doctor).filter(user.id_usuario == id_user).all()
+
+      if not query:
+         raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="error al conseguir todos las citas del doctor"
+         )
+      quotes_doctor = []   
+      for cita, doctor in query:
+         quotes_doctor.append({
+            "id_cita": cita.id_cita,
+            "cita": cita.id_cita,
+            "fecha": cita.fecha,
+            "estatus": cita.estatus
+         })
+         return quotes_doctor
+   except Exception as e:
+      return e
+
+@userRoutes.get("/getAllDataHours/{id_user}", status_code=status.HTTP_200_OK)
+async def get_all_hours_doctor(id_user: int,db: Session = Depends(get_db)):
+
+    try:
+        all_hours = db.query(user, ScheduleDoctor).join(ScheduleDoctor, user.id_usuario == ScheduleDoctor.id_usuario).filter(user.id_usuario == id_user).all()
+        data_all_hours = []
+        for User, scheduleDoctor in all_hours:
+           data_all_hours.append({
+              "id_doctor": User.id_usuario,
+              "name": User.nombre,
+              "dia": scheduleDoctor.día, 
+              "id_schedule_doctor": scheduleDoctor.id_horario,
+              "entrada": scheduleDoctor.entrada,
+              "salida": scheduleDoctor.salida
+           })
+        return data_all_hours
     except Exception as e:
         return e
    

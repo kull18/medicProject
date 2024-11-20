@@ -1,7 +1,7 @@
 from pydantic import BaseModel; 
 
 class Type_establishmentResponse(BaseModel):
-    
+    id_tipo_establecimiento: int
     tipo: str
 
     class Config():

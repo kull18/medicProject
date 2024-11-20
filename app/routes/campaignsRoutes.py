@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Depends; 
+from fastapi import APIRouter, Form,Depends, UploadFile, File;
+from datetime import datetime 
 from fastapi import Depends,status, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.shared.config.db import  get_db
 from app.models.Campaigns import campaigns
+from app.shared.config.s3Connection import get_s3_connection
 from app.schemas.Campaigns import CampaignsRequest, CampaignsResponse
 from app.models.CampaignsModel import CampaignsResponse
+from app.services.S3sevice import get_s3_connection
 
 campaignsRoutes = APIRouter(
     tags=["campaigns"],
@@ -13,30 +16,136 @@ campaignsRoutes = APIRouter(
 ); 
 
 
-@campaignsRoutes.post('/campaigns/', status_code=status.HTTP_201_CREATED, response_model=CampaignsResponse)
-async def create_caipaign(post_campaign: CampaignsRequest, db: Session = Depends(get_db)):
-
+@campaignsRoutes.post('/campaigns/', status_code=status.HTTP_201_CREATED)
+async def create_caipaign(
+   nombre: str = Form(...),
+   descripción: str = Form(...),
+   dirección: str = Form(...),
+   público: str = Form(...),
+   fecha_inicio: datetime = Form(...),
+   id_establecimiento: int = Form(...),
+   db: Session = Depends(get_db),
+   file: UploadFile = File(...)
+):
+    
     try:
-      new_campaign = campaigns(**post_campaign.model_dump())
+      post_campaign = {
+         "nombre": nombre,
+         "descripción": descripción,
+         "dirección": dirección,
+         "público": público,
+         "fecha_inicio": fecha_inicio,
+         "id_establecimiento": id_establecimiento
+      }
+
+      db.begin()
+
+      new_campaign = campaigns(**post_campaign)
       db.add(new_campaign)
       db.commit()
       db.refresh(new_campaign)
-      return new_campaign.__dict__
-    except Exception as e:
-       return e; 
 
-@campaignsRoutes.get('/campaigns/', status_code= status.HTTP_200_OK, response_model= List[CampaignsResponse])
+      try:
+            s3 = get_s3_connection()
+
+            if not file: 
+               raise HTTPException(
+                  status_code=status.HTTP_400_BAD_REQUEST,
+                  detail="No se cargo ninguna imagen "
+            )
+
+            file_content = await file.read()
+            print(file.filename)
+            
+            bucket_name = "upmedicproject4c"
+            object_name = f"campaigns/{new_campaign.id_campañas}/{file.filename}"
+            s3.put_object(Bucket=bucket_name, Key=object_name, Body=file_content)
+            return {
+                "message": f"Archivo subido correctamente a s3://{bucket_name}/{object_name}",
+                "establishment": new_campaign
+            }
+        
+      except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error al subir la imagen de la campaña: {e}"
+            )
+    except Exception as e:
+       db.rollback()
+       raise HTTPException(
+          status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+          detail="error al generar consulta"
+       )
+
+@campaignsRoutes.get('/campaignsAll/', status_code= status.HTTP_200_OK)
 async def get_employees(db: Session = Depends(get_db)):
 
     try:
+
+      s3 = get_s3_connection()
+      response = s3.list_objects_v2(Bucket="upmedicproject4c")
+
+      if 'Contents' not in response:
+         raise HTTPException(status_code=404, detail="no se encontraron elementos")
+      
+      images = []
+      for obj in response['Contents']:
+         file_key = obj['Key']
+         if file_key.endswith(('.jpg', '.jpeg', '.png')):  
+                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                images.append(image_url)
+
       all_campaigns = db.query(campaigns).all(); 
-      for i in all_campaigns:
-        print("campaign" + i.descripción)
-      return all_campaigns; 
+      
+      data_all_campaigns = []
+      for campaign in all_campaigns:
+         nombre_image = f"campaigns/{campaign.id_campañas}"
+         print(nombre_image)
+         for image in images: 
+            if nombre_image in image:
+               data_all_campaigns.append({
+                  "campaign": campaign,
+                  "image": image                  
+               })
+      return data_all_campaigns
     except Exception as e:
        return e; 
 
-@campaignsRoutes.put("/campaigns/{id_campaign}", response_model=CampaignsResponse)
+@campaignsRoutes.get('/campaigns/{id_establishment}', status_code= status.HTTP_200_OK)
+async def get_employees(id_establishment: int,db: Session = Depends(get_db)):
+
+    try:
+
+      s3 = get_s3_connection()
+      response = s3.list_objects_v2(Bucket="upmedicproject4c")
+
+      if 'Contents' not in response:
+         raise HTTPException(status_code=404, detail="no se encontraron elementos")
+      
+      images = []
+      for obj in response['Contents']:
+         file_key = obj['Key']
+         if file_key.endswith(('.jpg', '.jpeg', '.png')):  
+                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                images.append(image_url)
+
+      all_campaigns = db.query(campaigns).filter(campaigns.id_establecimiento == id_establishment).all(); 
+
+      data_all_campaigns = []
+      for campaign in all_campaigns:
+         nombre_image = f"campaigns/{campaign.id_campañas}"
+         for image in images: 
+            if nombre_image in image:
+               data_all_campaigns.append({
+                  "campaign": campaign,
+                  "image": image                  
+               })
+      return data_all_campaigns
+    except Exception as e:
+       return e; 
+
+@campaignsRoutes.put("/campaigns/{id_campaign}")
 async def change_campaign(id_campaign: int, campaignChanges: CampaignsRequest,db: Session = Depends(get_db)): 
 
     try:
