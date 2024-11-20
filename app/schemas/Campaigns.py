@@ -1,14 +1,15 @@
 from pydantic import BaseModel; 
 from datetime import datetime
+from typing import Optional
 
 class CampaignsBase(BaseModel):
-
-    nombre: str
-    descripción: str
-    dirección: str
-    público: str
-    fecha_inicio: datetime
-    id_establecimiento: int
+    id_campañas: Optional[int] = None
+    nombre: Optional[str] = None
+    descripción: Optional[str] = None
+    dirección: Optional[str] = None
+    público: Optional[str] = None
+    fecha_inicio: Optional[datetime] = None
+    id_establecimiento: Optional[int] = None
     
 
     class Config:
