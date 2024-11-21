@@ -2,6 +2,7 @@ from pydantic import BaseModel;
 from typing import List, Optional
 
 class EstablishmenBase(BaseModel):
+    id_establecimiento: Optional[int] = None
     id_tipo_establecimiento: Optional[int] = None
     descripción: Optional[str] = None
     categoria: Optional[str] = None 

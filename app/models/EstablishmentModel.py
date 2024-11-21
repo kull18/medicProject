@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 class EstablishmentResponse(BaseModel):
-
+    id_establecimiento: Optional[int] = None
     id_tipo_establecimiento: Optional[int] = None
     descripción: Optional[str] = None
     categoria: Optional[str] = None

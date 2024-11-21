@@ -6,6 +6,8 @@ from app.shared.config.db import get_db
 from app.models.Quotes import quotes
 from app.schemas.Quotes import QuotesRequest, QuotesResponse
 from app.models.QuotesModel import QuotesResponse
+from app.models.Establishment import Establishment
+from app.models.User import user
 
 quotesRoutes = APIRouter(
     tags=["quotes"],
@@ -34,7 +36,7 @@ async def get_quotes(db: Session = Depends(get_db)):
     except Exception as e:
         return e; 
 
-@quotesRoutes.get("/quotesById/{id_patient}/{status}", status_code=status.HTTP_200_OK)
+@quotesRoutes.get("/quotesById/{patientId}/{status}", status_code=status.HTTP_200_OK)
 async def getQuotesById(patientId: int,status: str,bd: Session = Depends(get_db)):
    
    try:
@@ -43,6 +45,33 @@ async def getQuotesById(patientId: int,status: str,bd: Session = Depends(get_db)
    except Exception as e:
       return e; 
 
+
+@quotesRoutes.get("/quotesById/{patientId}/{status}", status_code=status.HTTP_200_OK)
+async def getQuotesById(patientId: int,status: str,bd: Session = Depends(get_db)):
+   
+   try:
+      quotesById = bd.query(quotes).filter(quotes.id_usuario == patientId).filter(quotes.estatus == status).all()
+      return quotesById
+   except Exception as e:
+      return e; 
+
+@quotesRoutes.get("/quotesByIdDoctor/{id_doctor}/{status}", status_code=status.HTTP_200_OK)
+async def getQuotesById(id_doctor: int,status: str,bd: Session = Depends(get_db)):
+   
+   try:
+      quotesById = bd.query(quotes, user).join(user, user.id_usuario == quotes.id_doctor).filter(quotes.id_doctor == id_doctor).filter(quotes.estatus == status).all()
+      return quotesById
+   except Exception as e:
+      return e; 
+
+@quotesRoutes.get("/quotesByIdRecepcionist/{id_doctor}/{status}", status_code=status.HTTP_200_OK)
+async def getQuotesById(id_doctor: int,status: str,bd: Session = Depends(get_db)):
+   
+   try:
+      quotesById = bd.query(quotes, user).join(user, user.id_usuario == quotes.id_doctor).filter(quotes.id_doctor == id_doctor).filter(quotes.estatus == status).all()
+      return quotesById
+   except Exception as e:
+      return e; 
 @quotesRoutes.put("/quotes/{id_quote}", response_model=QuotesResponse)
 async def change_quote(id_quote: int, quoteChange: QuotesRequest,db: Session = Depends(get_db)): 
 

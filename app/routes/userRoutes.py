@@ -128,6 +128,7 @@ async def get_all_Information_Service(id_establishment: int, db: Session = Depen
 
         for service, User, establishment in all_information_service:
             data_all_information_service.append({
+                "cost": service.costo,
                 "id_service": service.id_servicio,
                 "service": service.tipo,
                 "id_doctor": User.id_usuario,

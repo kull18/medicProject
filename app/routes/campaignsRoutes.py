@@ -145,6 +145,40 @@ async def get_employees(id_establishment: int,db: Session = Depends(get_db)):
     except Exception as e:
        return e; 
 
+
+@campaignsRoutes.get('/campaignsWithOut/', status_code= status.HTTP_200_OK)
+async def get_employees(db: Session = Depends(get_db)):
+
+    try:
+
+      s3 = get_s3_connection()
+      response = s3.list_objects_v2(Bucket="upmedicproject4c")
+
+      if 'Contents' not in response:
+         raise HTTPException(status_code=404, detail="no se encontraron elementos")
+      
+      images = []
+      for obj in response['Contents']:
+         file_key = obj['Key']
+         if file_key.endswith(('.jpg', '.jpeg', '.png')):  
+                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                images.append(image_url)
+
+      all_campaigns = db.query(campaigns).all(); 
+
+      data_all_campaigns = []
+      for campaign in all_campaigns:
+         nombre_image = f"campaigns/{campaign.id_campañas}"
+         for image in images: 
+            if nombre_image in image:
+               data_all_campaigns.append({
+                  "campaign": campaign,
+                  "image": image                  
+               })
+      return data_all_campaigns
+    except Exception as e:
+       return e; 
+
 @campaignsRoutes.put("/campaigns/{id_campaign}")
 async def change_campaign(id_campaign: int, campaignChanges: CampaignsRequest,db: Session = Depends(get_db)): 
 
