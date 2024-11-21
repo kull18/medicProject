@@ -1,9 +1,11 @@
 from pydantic import BaseModel; 
 from datetime import time
+from typing import Optional
 
 class ScheduleBase(BaseModel):
-    entrada: time
-    salida: time
+    id_horario: Optional[int] = None
+    entrada: Optional[time] = None
+    salida: Optional[time] = None
     
     class Config:
         orm_mode = True
