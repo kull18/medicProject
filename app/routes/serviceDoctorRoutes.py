@@ -38,7 +38,7 @@ async def get_quotes(db: Session = Depends(get_db)):
     except Exception as e:
         return e
 
-@scheduleDoctorRoutes.put("/scheduleDoctor/{id_schedule}", response_model=ScheduleDoctorResponse)
+@scheduleDoctorRoutes.put("/scheduleDoctor/{id_scheduleDoctor}", response_model=ScheduleDoctorResponse)
 async def change_scheduleDoctor(id_sceduleDoctor: int, scheduleChange: ScheduleDoctorRequest,db: Session = Depends(get_db)): 
     
     try:
