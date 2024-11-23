@@ -34,6 +34,7 @@ async def create_establishment(
     id_dirección: int = Form(...),
     id_horario: int = Form(...),
     nombre: str = Form(...),
+    localidad: str = Form(...),
     file: UploadFile = File(...), 
     db: Session = Depends(get_db)
 ):
@@ -43,6 +44,7 @@ async def create_establishment(
             id_tipo_establecimiento=id_type_establishment,
             descripción=descripción,
             categoria=categoria,
+            localidad = localidad,
             id_dirección=id_dirección,
             id_horario=id_horario,
             nombre=nombre
@@ -109,8 +111,8 @@ async def get_all_services(db: Session = Depends(get_db)):
    except Exception as e:
       return e
    
-@establishmentRoutes.get("/searchEstablishment/{name_establishment}", status_code=status.HTTP_201_CREATED)
-async def getEstablishmentByName(name_establishment: str, db: Session = Depends(get_db)):
+@establishmentRoutes.get("/searchEstablishment/{name_establishment}/{location}", status_code=status.HTTP_201_CREATED)
+async def getEstablishmentByName(name_establishment: str, location: str,db: Session = Depends(get_db)):
     
     try:
 
@@ -127,7 +129,7 @@ async def getEstablishmentByName(name_establishment: str, db: Session = Depends(
                 image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
-      establishment_name = db.query(Establishment, Address).join(Address, Address.id_dirección == Establishment.id_dirección).filter(Establishment.nombre == name_establishment).all()
+      establishment_name = db.query(Establishment, Address).join(Address, Address.id_dirección == Establishment.id_dirección).filter(Establishment.nombre == name_establishment).filter(Establishment.localidad == location).all()
      
       if establishment_name is None:
         raise HTTPException(
@@ -151,8 +153,8 @@ async def getEstablishmentByName(name_establishment: str, db: Session = Depends(
     except Exception as e:
         return "error: " + str(e); 
 
-@establishmentRoutes.get("/findEstablishmentByService/{service_type}")
-async def get_establishment_by_name(service_type: str, db: Session = Depends(get_db)):
+@establishmentRoutes.get("/findEstablishmentByService/{service_type}/{location}")
+async def get_establishment_by_name(service_type: str, location: str,db: Session = Depends(get_db)):
    try:
 
     s3 = get_s3_connection()
@@ -175,6 +177,7 @@ async def get_establishment_by_name(service_type: str, db: Session = Depends(get
         .join(Service, Service.id_establecimiento == Establishment.id_establecimiento)
         .join(Address, Address.id_dirección == Establishment.id_dirección)
         .filter(Service.tipo == service_type)
+        .filter(Establishment.localidad == location)
         .all()
     )
 
@@ -208,6 +211,7 @@ async def get_establishment_by_name(service_type: str, db: Session = Depends(get
 async def get_establishment_by_type_category(
     service_type: str, 
     category: str, 
+    location: str,
     db: Session = Depends(get_db)
 ):
     try:
@@ -232,6 +236,7 @@ async def get_establishment_by_type_category(
             .join(Service, Service.id_establecimiento == Establishment.id_establecimiento)
             .join(Address, Address.id_dirección == Establishment.id_dirección)
             .filter(Service.tipo == service_type, Establishment.categoria == category)
+            .filter(Establishment.localidad == location)
             .all()
         )
 
@@ -275,8 +280,8 @@ async def get_establishments(db: Session = Depends(get_db)):
        return e
     
 
-@establishmentRoutes.get("/allImagesEstablishment/", status_code=status.HTTP_200_OK)
-async def get_images_from_s3(db: Session = Depends(get_db)):
+@establishmentRoutes.get("/allImagesEstablishment/{location}", status_code=status.HTTP_200_OK)
+async def get_images_from_s3(location: str,db: Session = Depends(get_db)):
     try:
         # Conexión a S3
         s3 = get_s3_connection()
@@ -298,6 +303,7 @@ async def get_images_from_s3(db: Session = Depends(get_db)):
             .join(Address, Establishment.id_dirección == Address.id_dirección)
             .outerjoin(Braiting, Braiting.id_establecimiento == Establishment.id_establecimiento)
             .group_by(Establishment.id_establecimiento, Address.id_dirección)
+            .filter(Establishment.localidad == location)
             .all()
         )
 

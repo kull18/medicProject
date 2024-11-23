@@ -39,21 +39,57 @@ async def get_quotes(db: Session = Depends(get_db)):
     except Exception as e:
         return e; 
 
-@quotesRoutes.get("/quotesById/{patientId}/{status}", status_code=status.HTTP_200_OK)
+@quotesRoutes.get("/quotesById/{patientId}", status_code=status.HTTP_200_OK)
 async def getQuotesById(patientId: int,status: str,bd: Session = Depends(get_db)):
    
    try:
-      quotesById = bd.query(quotes).filter(quotes.id_usuario == patientId).filter(quotes.estatus == status).all()
+      quotesById = bd.query(quotes).filter(quotes.id_doctor == patientId).all()
       return quotesById
    except Exception as e:
       return e; 
 
+@quotesRoutes.get("/allQuotePatient/{patientId}", status_code=status.HTTP_200_OK)
+async def getQuotesById(patientId: int,status: str,bd: Session = Depends(get_db)):
+   
+   try:
+      quotesById = bd.query(quotes).filter(quotes.id_usuario == patientId).all()
+      return quotesById
+   except Exception as e:
+      return e; 
 
-@quotesRoutes.get("/quotesByIdDoctor/{id_doctor}/{status}", status_code=status.HTTP_200_OK)
+@quotesRoutes.get("/quotesByIdRecepcionist/{id_establecimiento}", status_code=status.HTTP_200_OK)
+async def getQuotesByEstablishment(id_establecimiento: int, bd: Session = Depends(get_db)):
+    try:
+        doctor = aliased(user)
+        servicio = aliased(Service)
+        establecimiento = aliased(Establishment)
+
+        quotesByEstablishment = bd.query(quotes, servicio, establecimiento).\
+            join(servicio, servicio.id_servicio == quotes.id_servicio).\
+            join(establecimiento, establecimiento.id_establecimiento == servicio.id_establecimiento).\
+            filter(establecimiento.id_establecimiento == id_establecimiento).\
+            all()
+
+        return quotesByEstablishment
+    except Exception as e:
+        return {"error": str(e)}
+    
+
+
+@quotesRoutes.get("/quotesByIdDoctorWith/{id_doctor}/{status}", status_code=status.HTTP_200_OK)
 async def getQuotesById(id_doctor: int,status: str,bd: Session = Depends(get_db)):
    
    try:
       quotesById = bd.query(quotes).filter(quotes.id_doctor == id_doctor).filter(quotes.estatus == status).all()
+      return quotesById
+   except Exception as e:
+      return e; 
+
+@quotesRoutes.get("/quotesByIdPatientWith/{id_patient}/{status}", status_code=status.HTTP_200_OK)
+async def getQuotesById(id_patient: int,status: str,bd: Session = Depends(get_db)):
+   
+   try:
+      quotesById = bd.query(quotes).filter(quotes.id_usuario == id_patient).filter(quotes.estatus == status).all()
       return quotesById
    except Exception as e:
       return e; 

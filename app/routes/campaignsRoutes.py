@@ -9,6 +9,7 @@ from app.shared.config.s3Connection import get_s3_connection
 from app.schemas.Campaigns import CampaignsRequest, CampaignsResponse
 from app.models.CampaignsModel import CampaignsResponse
 from app.services.S3sevice import get_s3_connection
+from app.models.Establishment import Establishment
 
 campaignsRoutes = APIRouter(
     tags=["campaigns"],
@@ -78,8 +79,8 @@ async def create_caipaign(
           detail="error al generar consulta"
        )
 
-@campaignsRoutes.get('/campaignsAll/', status_code= status.HTTP_200_OK)
-async def get_employees(db: Session = Depends(get_db)):
+@campaignsRoutes.get('/campaignsAll/{location}', status_code= status.HTTP_200_OK)
+async def get_employees(location: str,db: Session = Depends(get_db)):
 
     try:
 
@@ -96,10 +97,10 @@ async def get_employees(db: Session = Depends(get_db)):
                 image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
-      all_campaigns = db.query(campaigns).all(); 
+      all_campaigns = db.query(campaigns, Establishment).join(Establishment, campaigns.id_establecimiento == Establishment.id_establecimiento).filter(Establishment.localidad == location); 
       
       data_all_campaigns = []
-      for campaign in all_campaigns:
+      for campaign, establishment in all_campaigns:
          nombre_image = f"campaigns/{campaign.id_campañas}"
          print(nombre_image)
          for image in images: 
@@ -146,7 +147,7 @@ async def get_employees(id_establishment: int,db: Session = Depends(get_db)):
        return e; 
 
 
-@campaignsRoutes.get('/campaignsByName/{campaign_name}', status_code= status.HTTP_200_OK)
+@campaignsRoutes.get('/campaignsByName/{campaign_name}/{location}', status_code= status.HTTP_200_OK)
 async def get_employees(campaign_name: str,db: Session = Depends(get_db)):
 
     try:
