@@ -246,6 +246,28 @@ async def get_all_quotes_doctor(id_user: int, db: Session = Depends(get_db)):
    except Exception as e:
       return e
 
+@userRoutes.get("/allQuoteDoctorEstablishment/{id_establishment}/{status}", status_code=200)
+async def get_all_quotes_doctor(id_user: int, db: Session = Depends(get_db)):
+   try:
+      query = db.query(quotes, user).join(user, user.id_usuario == quotes.id_doctor).filter(user.id_usuario == id_user, quotes.estatus == status).all()
+
+      if not query:
+         raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="error al conseguir todos las citas del doctor"
+         )
+      quotes_doctor = []   
+      for cita, doctor in query:
+         quotes_doctor.append({
+            "id_cita": cita.id_cita,
+            "cita": cita.id_cita,
+            "fecha": cita.fecha,
+            "estatus": cita.estatus
+         })
+         return quotes_doctor
+   except Exception as e:
+      return e
+
 @userRoutes.get("/getAllDataHours/{id_user}", status_code=status.HTTP_200_OK)
 async def get_all_hours_doctor(id_user: int,db: Session = Depends(get_db)):
 

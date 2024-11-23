@@ -39,10 +39,10 @@ async def get_quotes(db: Session = Depends(get_db)):
         return e
 
 @scheduleDoctorRoutes.put("/scheduleDoctor/{id_scheduleDoctor}", response_model=ScheduleDoctorResponse)
-async def change_scheduleDoctor(id_sceduleDoctor: int, scheduleChange: ScheduleDoctorRequest,db: Session = Depends(get_db)): 
+async def change_scheduleDoctor(id_scheduleDoctor: int, scheduleChange: ScheduleDoctorRequest,db: Session = Depends(get_db)): 
     
     try:
-      change_scheduleDoctor  = db.query(ScheduleDoctor).filter(ScheduleDoctor.id_horario == id_sceduleDoctor).first()
+      change_scheduleDoctor  = db.query(ScheduleDoctor).filter(ScheduleDoctor.id_horario == id_scheduleDoctor).first()
       if change_scheduleDoctor is None:
         raise HTTPException(
             status_code=404,
