@@ -7,6 +7,7 @@ class UserResponse(BaseModel):
     nombre: Optional[str] = None
     contraseña: Optional[str] = None
     id_establecimiento: Optional[int] = None
+    localidad: Optional[str] = None
     id_servicio: Optional[int] = None
 
     class Config:

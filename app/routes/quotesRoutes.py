@@ -49,15 +49,6 @@ async def getQuotesById(patientId: int,status: str,bd: Session = Depends(get_db)
       return e; 
 
 
-@quotesRoutes.get("/quotesById/{patientId}/{status}", status_code=status.HTTP_200_OK)
-async def getQuotesById(patientId: int,status: str,bd: Session = Depends(get_db)):
-   
-   try:
-      quotesById = bd.query(quotes).filter(quotes.id_usuario == patientId).filter(quotes.estatus == status).all()
-      return quotesById
-   except Exception as e:
-      return e; 
-
 @quotesRoutes.get("/quotesByIdDoctor/{id_doctor}/{status}", status_code=status.HTTP_200_OK)
 async def getQuotesById(id_doctor: int,status: str,bd: Session = Depends(get_db)):
    

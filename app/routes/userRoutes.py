@@ -161,20 +161,21 @@ async def get_all_Information_Service(id_establishment: int,db: Session = Depend
         return e
 
 
-@userRoutes.get("/allInformationIdEstablish/{id_establishment}", status_code=status.HTTP_200_OK)
-async def get_all_Information_Service(db: Session = Depends(get_db)):
-    try:
 
+@userRoutes.get("/allInformationIdEstablish/{id_establishment}", status_code=status.HTTP_200_OK)
+async def get_all_Information_Service(id_establishment: int, db: Session = Depends(get_db)):
+    try:
+        # Conexión con S3
         s3 = get_s3_connection()
         response = s3.list_objects_v2(Bucket="upmedicproject4c")
 
         if 'Contents' not in response:
-         raise HTTPException(status_code=404, detail="no se encontraron elementos")
-      
+            raise HTTPException(status_code=404, detail="No se encontraron elementos en S3")
+        
         images = []
         for obj in response['Contents']:
-         file_key = obj['Key']
-         if file_key.endswith(('.jpg', '.jpeg', '.png')):  
+            file_key = obj['Key']
+            if file_key.endswith(('.jpg', '.jpeg', '.png')):  
                 image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
@@ -182,9 +183,9 @@ async def get_all_Information_Service(db: Session = Depends(get_db)):
             Address, Address.id_dirección == Establishment.id_dirección
         ).join(
             Service, Service.id_establecimiento == Establishment.id_establecimiento
-        ).join(Schedule, Schedule.id_horario == Establishment.id_horario).all()
-
-        print(all_information_service)
+        ).join(Schedule, Schedule.id_horario == Establishment.id_horario).filter(
+            Establishment.id_establecimiento == id_establishment
+        ).all()
 
         if not all_information_service:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Establecimiento no encontrado")
@@ -192,23 +193,24 @@ async def get_all_Information_Service(db: Session = Depends(get_db)):
         establishment_data = None
         services = []
 
+
         for establishment, address, service, schedule in all_information_service:
             for image in images:
-               name_image = f"establishments/{establishment.id_establecimiento}"
-        if name_image in image:               
-            if not establishment_data:
-                establishment_data = {
-                    "id_establishment": establishment.id_establecimiento,
-                    "nameEstablishment": establishment.nombre,
-                    "descripcion": establishment.descripción,
-                    "direccion": {
-                        "calle": address.calle,
-                        "colonia": address.colonia,
-                        "numero": address.numero
-                    },
-                    "horario": schedule,
-                    "image": image
-                }
+                name_image = f"establishments/{establishment.id_establecimiento}"
+                if name_image in image:
+                    if not establishment_data:
+                        establishment_data = {
+                            "id_establishment": establishment.id_establecimiento,
+                            "nameEstablishment": establishment.nombre,
+                            "descripcion": establishment.descripción,
+                            "direccion": {
+                                "calle": address.calle,
+                                "colonia": address.colonia,
+                                "numero": address.numero
+                            },
+                            "horario": schedule,
+                            "image": image
+                        }
             
             services.append({
                 "id_service": service.id_servicio,
@@ -246,10 +248,32 @@ async def get_all_quotes_doctor(id_user: int, db: Session = Depends(get_db)):
    except Exception as e:
       return e
 
-@userRoutes.get("/allQuoteDoctorEstablishment/{id_establishment}/{status}", status_code=200)
-async def get_all_quotes_doctor(id_user: int, db: Session = Depends(get_db)):
+@userRoutes.get("/allQuoteReceptioniestEstablishment/{id_establishment}/{status}", status_code=200)
+async def get_all_quotes_doctor(id_establishment: int, status: str,db: Session = Depends(get_db)):
    try:
-      query = db.query(quotes, user).join(user, user.id_usuario == quotes.id_doctor).filter(user.id_usuario == id_user, quotes.estatus == status).all()
+      query = db.query(quotes, user).join(user, user.id_usuario == quotes.id_doctor).filter(user.id_establecimiento == id_establishment, quotes.estatus == status).all()
+
+      if not query:
+         raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="error al conseguir todos las citas del doctor"
+         )
+      quotes_doctor = []   
+      for cita, doctor in query:
+         quotes_doctor.append({
+            "id_cita": cita.id_cita,
+            "cita": cita.id_cita,
+            "fecha": cita.fecha,
+            "estatus": cita.estatus
+         })
+         return quotes_doctor
+   except Exception as e:
+      return e
+   
+@userRoutes.get("/allQuoteDoctorEstablishment/{id_establishment}/${id_doctor}/{status}", status_code=200)
+async def get_all_quotes_doctor(id_doctor: int,id_establishment: int, status: str,db: Session = Depends(get_db)):
+   try:
+      query = db.query(quotes, user).join(user, user.id_servicio == quotes.id_servicio).filter(user.id_establecimiento == id_establishment, quotes.estatus == status, quotes.id_doctor == id_doctor).all()
 
       if not query:
          raise HTTPException(

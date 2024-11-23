@@ -6,6 +6,7 @@ class UserBase(BaseModel):
     id_rol: Optional[int] = None
     nombre: Optional[str] = None
     contraseña: Optional[str] = None
+    localidad: Optional[str] = None
     id_establecimiento: Optional[int] = None
     id_servicio: Optional[int] = None
 
