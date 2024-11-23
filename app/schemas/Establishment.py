@@ -5,6 +5,7 @@ class EstablishmenBase(BaseModel):
     id_establecimiento: Optional[int] = None
     id_tipo_establecimiento: Optional[int] = None
     descripción: Optional[str] = None
+    localidad: Optional[str] = None
     categoria: Optional[str] = None 
     id_dirección: Optional[int] = None
     id_horario: Optional[int] = None

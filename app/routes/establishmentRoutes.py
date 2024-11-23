@@ -6,6 +6,7 @@ from app.shared.config.db import get_db
 from app.models.User import user
 from app.models.Address import Address
 from app.models.ScheduleDoctor import ScheduleDoctor
+from sqlalchemy import func
 from app.shared.config.s3Connection import get_s3_connection
 import boto3
 from app.services.S3sevice import get_images_from_s3
@@ -13,6 +14,7 @@ from app.models.Establishment import Establishment
 from app.schemas.Establishment import EstablishmentRequest, EstablishmentResponse
 from app.models.EstablishmentModel import EstablishmentResponse
 import os
+from app.models.braiting import Braiting
 from botocore.exceptions import NoCredentialsError
 from app.models.Servicie import Service
 
@@ -272,18 +274,17 @@ async def get_establishments(db: Session = Depends(get_db)):
     except Exception as e:
        return e
     
+
 @establishmentRoutes.get("/allImagesEstablishment/", status_code=status.HTTP_200_OK)
 async def get_images_from_s3(db: Session = Depends(get_db)):
     try:
-
+        # Conexión a S3
         s3 = get_s3_connection()
         response = s3.list_objects_v2(Bucket="upmedicproject4c")
-
 
         if 'Contents' not in response:
             raise HTTPException(status_code=404, detail="No se encontraron objetos en el bucket.")
         
-
         images = []
         for obj in response['Contents']:
             file_key = obj['Key']
@@ -292,22 +293,27 @@ async def get_images_from_s3(db: Session = Depends(get_db)):
                 images.append(image_url)
 
         all_establishment = (
-            db.query(Establishment, Address)
+            db.query(Establishment, Address,
+                     func.avg(Braiting.calificacion).label('promedio_calificacion'))
             .join(Address, Establishment.id_dirección == Address.id_dirección)
+            .outerjoin(Braiting, Braiting.id_establecimiento == Establishment.id_establecimiento)
+            .group_by(Establishment.id_establecimiento, Address.id_dirección)
             .all()
         )
 
         data_establishment_image = []
         for image in images:
-            for establishment, address in all_establishment:
+            for establishment, address, promedio_calificacion in all_establishment:
                 nombre_image = f"establishments/{establishment.id_establecimiento}"
                 if nombre_image in image:
                     data_establishment_image.append({
                         "id_establecimiento": establishment.id_establecimiento,
                         "nombre": establishment.nombre,
                         "direccion": address,
-                        "image": image
+                        "image": image,
+                        "promedio_calificacion": promedio_calificacion if promedio_calificacion is not None else 0
                     })
+
         return data_establishment_image
 
     except Exception as e:
@@ -315,7 +321,6 @@ async def get_images_from_s3(db: Session = Depends(get_db)):
             status_code=500,
             detail=f"Error al obtener imágenes del bucket: {e}"
         )
-
 
 @establishmentRoutes.put("/establishment/{id_establishment}", response_model=EstablishmentResponse)
 async def change_establishment(id_establishment: int, employeeChange: EstablishmentRequest,db: Session = Depends(get_db)): 

@@ -15,13 +15,13 @@ from app.routes.userRoutes import userRoutes
 from app.routes.serviceRouter import serviceRoutes
 from app.routes.campaignsRoutes import campaignsRoutes
 from app.routes.StripeRoute import stripe_router
-
+from app.routes.braitingRoute import braitingRoutes
 load_dotenv(); 
 
 app = FastAPI()
 
 #iter routes
-routes = [ rolRoutes, userRoutes, scheduleDoctorRoutes, scheduleRoutes,campaignsRoutes,addressRoutes, quotesRoutes,serviceRoutes,type_establishmentRoutes,establishmentRoutes, billRoutes, stripe_router]
+routes = [ rolRoutes, userRoutes, scheduleDoctorRoutes, scheduleRoutes,campaignsRoutes,addressRoutes, quotesRoutes,serviceRoutes,type_establishmentRoutes,establishmentRoutes, billRoutes, stripe_router, braitingRoutes]
 for route  in routes:
     app.include_router(route)
 

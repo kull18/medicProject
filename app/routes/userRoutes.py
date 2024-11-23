@@ -8,6 +8,7 @@ import app.models
 from app.models.EstablishmentModel import EstablishmentResponse
 from fastapi.responses import JSONResponse
 from app.services.authService import loguearse
+from app.services.S3sevice import get_s3_connection
 from app.models.User import user
 from app.models.Establishment import Establishment
 from app.schemas.TokenModel import AccessToken
@@ -161,17 +162,29 @@ async def get_all_Information_Service(id_establishment: int,db: Session = Depend
 
 
 @userRoutes.get("/allInformationIdEstablish/{id_establishment}", status_code=status.HTTP_200_OK)
-async def get_all_Information_Service(id_establishment: int, db: Session = Depends(get_db)):
+async def get_all_Information_Service(db: Session = Depends(get_db)):
     try:
+
+        s3 = get_s3_connection()
+        response = s3.list_objects_v2(Bucket="upmedicproject4c")
+
+        if 'Contents' not in response:
+         raise HTTPException(status_code=404, detail="no se encontraron elementos")
+      
+        images = []
+        for obj in response['Contents']:
+         file_key = obj['Key']
+         if file_key.endswith(('.jpg', '.jpeg', '.png')):  
+                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                images.append(image_url)
 
         all_information_service = db.query(Establishment, Address, Service, Schedule).join(
             Address, Address.id_dirección == Establishment.id_dirección
         ).join(
             Service, Service.id_establecimiento == Establishment.id_establecimiento
-        ).join(Schedule, Schedule.id_horario == Establishment.id_horario) \
-        .filter(
-            Establishment.id_establecimiento == id_establishment
-        ).all()
+        ).join(Schedule, Schedule.id_horario == Establishment.id_horario).all()
+
+        print(all_information_service)
 
         if not all_information_service:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Establecimiento no encontrado")
@@ -180,6 +193,9 @@ async def get_all_Information_Service(id_establishment: int, db: Session = Depen
         services = []
 
         for establishment, address, service, schedule in all_information_service:
+            for image in images:
+               name_image = f"establishments/{establishment.id_establecimiento}"
+        if name_image in image:               
             if not establishment_data:
                 establishment_data = {
                     "id_establishment": establishment.id_establecimiento,
@@ -190,7 +206,8 @@ async def get_all_Information_Service(id_establishment: int, db: Session = Depen
                         "colonia": address.colonia,
                         "numero": address.numero
                     },
-                    "horario": schedule
+                    "horario": schedule,
+                    "image": image
                 }
             
             services.append({
