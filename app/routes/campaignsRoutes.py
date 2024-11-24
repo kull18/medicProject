@@ -152,34 +152,74 @@ async def get_employees(campaign_name: str,location: str,db: Session = Depends(g
 
     try:
 
-      s3 = get_s3_connection()
-      response = s3.list_objects_v2(Bucket="upmedicproject4c")
-
-      if 'Contents' not in response:
-         raise HTTPException(status_code=404, detail="no se encontraron elementos")
-      
-      images = []
-      for obj in response['Contents']:
-         file_key = obj['Key']
-         if file_key.endswith(('.jpg', '.jpeg', '.png')):  
+        s3 = get_s3_connection()
+        response = s3.list_objects_v2(Bucket="upmedicproject4c")
+        
+        if 'Contents' not in response:
+            raise HTTPException(status_code=404, detail="No elements found in S3")
+        
+        images = []
+        for obj in response['Contents']:
+            file_key = obj['Key']
+            if file_key.endswith(('.jpg', '.jpeg', '.png')):
                 image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
-
-      all_campaigns = db.query(campaigns, Establishment).join(Establishment.id_establecimiento == campaigns.id_establecimiento).filter(Establishment.localidad == location).all(); 
-
-      data_all_campaigns = []
-      for campaign, establishment in all_campaigns:
-         nombre_image = f"campaigns/{campaign.id_campañas}"
-         for image in images: 
-            if nombre_image in image:
-               data_all_campaigns.append({
-                  "campaign": campaign,
-                  "image": image                  
-               })
-      return data_all_campaigns
+        
+       
+        all_campaigns = db.query(campaigns, Establishment).join(Establishment, Establishment.id_establecimiento == campaigns.id_establecimiento).filter(Establishment.localidad == location).filter(campaigns.nombre == campaign_name).all()
+        
+        data_all_campaigns = []
+        for campaign, establishment in all_campaigns:
+            nombre_image = f"campaigns/{campaign.id_campañas}"
+            for image in images:
+                if nombre_image in image:
+                    data_all_campaigns.append({
+                        "campaign": campaign,
+                        "image": image
+                    })
+        
+        return data_all_campaigns
+    
     except Exception as e:
-       return e; 
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@campaignsRoutes.get('/campaignsByEstablishmentName/{id_establishment}/{name}', status_code= status.HTTP_200_OK)
+async def get_employees(id_establishment: int,name: str,db: Session = Depends(get_db)):
 
+    try:
+
+        s3 = get_s3_connection()
+        response = s3.list_objects_v2(Bucket="upmedicproject4c")
+        
+        if 'Contents' not in response:
+            raise HTTPException(status_code=404, detail="No elements found in S3")
+        
+        # Get all images
+        images = []
+        for obj in response['Contents']:
+            file_key = obj['Key']
+            if file_key.endswith(('.jpg', '.jpeg', '.png')):
+                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                images.append(image_url)
+        
+       
+        all_campaigns = db.query(campaigns, Establishment).join(Establishment, Establishment.id_establecimiento == campaigns.id_establecimiento).filter(Establishment.id_establecimiento == id_establishment).filter(campaigns.nombre == name).all()
+        
+        # Build list of campaigns with corresponding images
+        data_all_campaigns = []
+        for campaign, establishment in all_campaigns:
+            nombre_image = f"campaigns/{campaign.id_campañas}"
+            for image in images:
+                if nombre_image in image:
+                    data_all_campaigns.append({
+                        "campaign": campaign,
+                        "image": image
+                    })
+        
+        return data_all_campaigns
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @campaignsRoutes.get('/campaignsWithOut/', status_code= status.HTTP_200_OK)
 async def get_employees(db: Session = Depends(get_db)):

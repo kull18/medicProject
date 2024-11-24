@@ -34,6 +34,7 @@ def loguearse(Employee: UserLoginReques, db: Session):
     data_user = DataUserToken(
         nombre=db_user.nombre,
         id_rol=db_user.id_rol, 
+        localidad = db_user.localidad,
         id_usuario=db_user.id_usuario,
         rol= role.description,
         id_establecimiento = id_establishment_value
