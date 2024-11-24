@@ -6,6 +6,7 @@ class DataUserToken(BaseModel):
     nombre: str
     id_rol: Optional[int] = None  
     id_usuario: int 
+    localidad: Optional[str] = None
     rol: Optional[str] = None
     id_establecimiento: Optional[int] = None
 
