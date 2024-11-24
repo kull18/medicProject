@@ -148,7 +148,7 @@ async def get_employees(id_establishment: int,db: Session = Depends(get_db)):
 
 
 @campaignsRoutes.get('/campaignsByName/{campaign_name}/{location}', status_code= status.HTTP_200_OK)
-async def get_employees(campaign_name: str,db: Session = Depends(get_db)):
+async def get_employees(campaign_name: str,location: str,db: Session = Depends(get_db)):
 
     try:
 
@@ -165,10 +165,10 @@ async def get_employees(campaign_name: str,db: Session = Depends(get_db)):
                 image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
-      all_campaigns = db.query(campaigns).filter(campaigns.nombre == campaign_name).all(); 
+      all_campaigns = db.query(campaigns, Establishment).join(Establishment.id_establecimiento == campaigns.id_establecimiento).filter(Establishment.localidad == location).all(); 
 
       data_all_campaigns = []
-      for campaign in all_campaigns:
+      for campaign, establishment in all_campaigns:
          nombre_image = f"campaigns/{campaign.id_campañas}"
          for image in images: 
             if nombre_image in image:

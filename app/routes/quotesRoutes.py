@@ -39,8 +39,8 @@ async def get_quotes(db: Session = Depends(get_db)):
     except Exception as e:
         return e; 
 
-@quotesRoutes.get("/quotesById/{patientId}", status_code=status.HTTP_200_OK)
-async def getQuotesById(patientId: int,status: str,bd: Session = Depends(get_db)):
+@quotesRoutes.get("/quotesDoctorById/{patientId}", status_code=status.HTTP_200_OK)
+async def getQuotesById(patientId: int,bd: Session = Depends(get_db)):
    
    try:
       quotesById = bd.query(quotes).filter(quotes.id_doctor == patientId).all()
@@ -49,7 +49,7 @@ async def getQuotesById(patientId: int,status: str,bd: Session = Depends(get_db)
       return e; 
 
 @quotesRoutes.get("/allQuotePatient/{patientId}", status_code=status.HTTP_200_OK)
-async def getQuotesById(patientId: int,status: str,bd: Session = Depends(get_db)):
+async def getQuotesById(patientId: int,bd: Session = Depends(get_db)):
    
    try:
       quotesById = bd.query(quotes).filter(quotes.id_usuario == patientId).all()
