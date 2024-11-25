@@ -20,10 +20,9 @@ class PaymentRequest(BaseModel):
 @stripe_router.post("/stripeQuotes")
 async def create_quote(quote_request: QuotesRequest, quote_data: QuotesBase):
     try:
-        items = quote_request.items
-
+        items = quote_request.items  # Extract items from the quote request
         session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
+            payment_method_types=["card"],  # Only card payment allowed for now
             shipping_address_collection={
                 "allowed_countries": ["US", "MX"]
             },
@@ -70,22 +69,22 @@ async def create_quote(quote_request: QuotesRequest, quote_data: QuotesBase):
                 "price_data": {
                     "currency": "mxn",
                     "product_data": {
-                        "name": item.name,
-                        "images": [item.product]
+                        "name": item.name,  # Service name
+                        "images": [item.product]  # Product image or identifier
                     },
-                    "unit_amount": int(item.price * 100)  # Convertir a centavos
+                    "unit_amount": int(item.price * 100)  # Convert price to cents
                 },
-                "quantity": item.quantity
-            } for item in items],
-            mode="payment",
-            success_url="http://localhost:4100/success.html",
-            cancel_url="http://localhost:4100/cancel.html"
+                "quantity": item.quantity  # Item quantity
+            } for item in items],  # Process all items
+            mode="payment",  # Payment mode
+            success_url="http://localhost:4100/success.html",  # Success redirect URL
+            cancel_url="http://localhost:4100/cancel.html"  # Cancel redirect URL
         )
 
         return {"session_id": session.id, "quote_id": quote_data.id_usuario}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))  # Handle any errors that occur
 
 
 @stripe_router.post("/generate-pdf")

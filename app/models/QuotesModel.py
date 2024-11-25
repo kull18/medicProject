@@ -3,7 +3,7 @@ from datetime import date, time
 from typing import Optional
 
 class QuotesResponse(BaseModel):
-    
+    id_cita: Optional[int] = None
     id_usuario: Optional[int] = None
     fecha: Optional[date] = None
     horario: Optional[time] = None
