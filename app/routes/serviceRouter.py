@@ -59,7 +59,7 @@ async def change_service(id_service: int, userChange: ServiceRequest,db: Session
     except Exception as e:
        return e
     
-@serviceRoutes.delete("/service/{id_service}", response_model=ServiceResponse)
+@serviceRoutes.delete("/services/{id_service}", response_model=ServiceResponse)
 async def delete_service(id_service: int, db: Session = Depends(get_db)):
 
     try:

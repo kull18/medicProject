@@ -69,22 +69,22 @@ async def create_quote(quote_request: QuotesRequest, quote_data: QuotesBase):
                 "price_data": {
                     "currency": "mxn",
                     "product_data": {
-                        "name": item.name,  # Service name
-                        "images": [item.product]  # Product image or identifier
+                        "name": item.name,  
+                        "images": [item.product]  
                     },
-                    "unit_amount": int(item.price * 100)  # Convert price to cents
+                    "unit_amount": int(item.price * 100)  
                 },
-                "quantity": item.quantity  # Item quantity
-            } for item in items],  # Process all items
-            mode="payment",  # Payment mode
-            success_url="http://localhost:4100/success.html",  # Success redirect URL
-            cancel_url="http://localhost:4100/cancel.html"  # Cancel redirect URL
+                "quantity": item.quantity 
+            } for item in items], 
+            mode="payment",
+            success_url="http://localhost:4200/success.html",
+            cancel_url="http://localhost:4200/cancel.html"  
         )
 
         return {"session_id": session.id, "quote_id": quote_data.id_usuario}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))  # Handle any errors that occur
+        raise HTTPException(status_code=500, detail=str(e)) 
 
 
 @stripe_router.post("/generate-pdf")
