@@ -207,7 +207,7 @@ async def get_establishment_by_name(service_type: str, location: str,db: Session
         detail=f"Error al procesar la solicitud: {e}"
     ) 
    
-@establishmentRoutes.get("/findEstablishmentByTypeCategory/{service_type}/{category}")
+@establishmentRoutes.get("/findEstablishmentByTypeCategory/{service_type}/{category}/{location}")
 async def get_establishment_by_type_category(
     service_type: str, 
     category: str, 
