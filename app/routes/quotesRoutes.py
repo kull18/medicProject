@@ -10,6 +10,7 @@ from app.models.Establishment import Establishment
 from app.models.User import user
 from sqlalchemy.orm import aliased
 from sqlalchemy import and_
+from app.models.Establishment import Establishment
 from app.models.Servicie import Service
 
 quotesRoutes = APIRouter(
@@ -86,13 +87,31 @@ async def getQuotesById(id_doctor: int,status: str,bd: Session = Depends(get_db)
       return e; 
 
 @quotesRoutes.get("/quotesByIdPatientWith/{id_patient}/{status}", status_code=status.HTTP_200_OK)
-async def getQuotesById(id_patient: int,status: str,bd: Session = Depends(get_db)):
-   
-   try:
-      quotesById = bd.query(quotes).filter(quotes.id_usuario == id_patient).filter(quotes.estatus == status).all()
-      return quotesById
-   except Exception as e:
-      return e; 
+async def getQuotesById(id_patient: int, status: str, bd: Session = Depends(get_db)):
+    try:
+        quotesById = (
+            bd.query(quotes, Service, Establishment)  
+            .join(Service, Service.id_servicio == quotes.id_servicio) 
+            .join(Establishment, Establishment.id_establecimiento == Service.id_establecimiento) 
+            .filter(quotes.id_usuario == id_patient)  
+            .filter(quotes.estatus == status) 
+            .all()
+        )
+        result = [
+            {
+                'id_cita': quote.id_cita,
+                'fecha': quote.fecha,
+                'estatus': quote.estatus,
+                'horario': quote.horario,
+                'id_establecimiento': establecimiento.id_establecimiento  
+            }
+            for quote, servicio, establecimiento in quotesById
+        ]
+
+        return result
+
+    except Exception as e:
+        return {"error": str(e)}
 
 @quotesRoutes.get("/quotesByIdRecepcionist/{id_establecimiento}/{status}", status_code=status.HTTP_200_OK)
 async def getQuotesByEstablishment(id_establecimiento: int, status: str, bd: Session = Depends(get_db)):
