@@ -167,7 +167,7 @@ async def get_all_Information_Service(id_establishment: int, db: Session = Depen
     try:
         # Conexión con S3
         s3 = get_s3_connection()
-        response = s3.list_objects_v2(Bucket="upmedicproject4c")
+        response = s3.list_objects_v2(Bucket="upmedicproject4c2")
 
         if 'Contents' not in response:
             raise HTTPException(status_code=404, detail="No se encontraron elementos en S3")
@@ -176,7 +176,7 @@ async def get_all_Information_Service(id_establishment: int, db: Session = Depen
         for obj in response['Contents']:
             file_key = obj['Key']
             if file_key.endswith(('.jpg', '.jpeg', '.png')):  
-                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
         all_information_service = db.query(Establishment, Address, Service, Schedule).join(

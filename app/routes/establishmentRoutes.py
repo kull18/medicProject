@@ -296,6 +296,8 @@ async def get_images_from_s3(location: str,db: Session = Depends(get_db)):
                 image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
+        print(images)
+
         all_establishment = (
             db.query(Establishment, Address,
                      func.avg(Braiting.calificacion).label('promedio_calificacion'))
