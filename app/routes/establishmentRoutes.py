@@ -71,7 +71,7 @@ async def create_establishment(
             file_content = await file.read() 
             print(file.filename)
 
-            bucket_name = "upmedicproject4c"
+            bucket_name = "upmedicproject4c2"
             object_name = f"establishments/{new_establishment.id_establecimiento}/{file.filename}"
 
             s3.put_object(Bucket=bucket_name, Key=object_name, Body=file_content)
@@ -117,7 +117,7 @@ async def getEstablishmentByName(name_establishment: str, location: str,db: Sess
     try:
 
       s3 = get_s3_connection()
-      response = s3.list_objects_v2(Bucket="upmedicproject4c")
+      response = s3.list_objects_v2(Bucket="upmedicproject4c2")
 
       if 'Contents' not in response:
          raise HTTPException(status_code=404, detail="no se encontraron elementos")
@@ -126,7 +126,7 @@ async def getEstablishmentByName(name_establishment: str, location: str,db: Sess
       for obj in response['Contents']:
          file_key = obj['Key']
          if file_key.endswith(('.jpg', '.jpeg', '.png')):  
-                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
       establishment_name = db.query(Establishment, Address).join(Address, Address.id_dirección == Establishment.id_dirección).filter(Establishment.nombre == name_establishment).filter(Establishment.localidad == location).all()
@@ -158,7 +158,7 @@ async def get_establishment_by_name(service_type: str, location: str,db: Session
    try:
 
     s3 = get_s3_connection()
-    response = s3.list_objects_v2(Bucket="upmedicproject4c")
+    response = s3.list_objects_v2(Bucket="upmedicproject4c2")
 
 
     if 'Contents' not in response:
@@ -166,7 +166,7 @@ async def get_establishment_by_name(service_type: str, location: str,db: Session
 
 
     images = [
-        f"https://upmedicproject4c.s3.amazonaws.com/{obj['Key']}"
+        f"https://upmedicproject4c2.s3.amazonaws.com/{obj['Key']}"
         for obj in response['Contents']
         if obj['Key'].endswith(('.jpg', '.jpeg', '.png'))
     ]
@@ -217,7 +217,7 @@ async def get_establishment_by_type_category(
     try:
         
         s3 = get_s3_connection()
-        response = s3.list_objects_v2(Bucket="upmedicproject4c")
+        response = s3.list_objects_v2(Bucket="upmedicproject4c2")
 
         if 'Contents' not in response:
             raise HTTPException(status_code=404, detail="No se encontraron objetos en el bucket.")
@@ -227,7 +227,7 @@ async def get_establishment_by_type_category(
         for obj in response['Contents']:
             file_key = obj['Key']
             if file_key.endswith(('.jpg', '.jpeg', '.png')):  
-                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
 
@@ -235,8 +235,7 @@ async def get_establishment_by_type_category(
             db.query(Establishment, Service, Address)
             .join(Service, Service.id_establecimiento == Establishment.id_establecimiento)
             .join(Address, Address.id_dirección == Establishment.id_dirección)
-            .filter(Service.tipo == service_type, Establishment.categoria == category)
-            .filter(Establishment.localidad == location)
+            .filter(Service.tipo == service_type, Establishment.categoria == category, Establishment.categoria == category)
             .all()
         )
 
@@ -285,7 +284,7 @@ async def get_images_from_s3(location: str,db: Session = Depends(get_db)):
     try:
         # Conexión a S3
         s3 = get_s3_connection()
-        response = s3.list_objects_v2(Bucket="upmedicproject4c")
+        response = s3.list_objects_v2(Bucket="upmedicproject4c2")
 
         if 'Contents' not in response:
             raise HTTPException(status_code=404, detail="No se encontraron objetos en el bucket.")
@@ -294,7 +293,7 @@ async def get_images_from_s3(location: str,db: Session = Depends(get_db)):
         for obj in response['Contents']:
             file_key = obj['Key']
             if file_key.endswith(('.jpg', '.jpeg', '.png')):  
-                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
         all_establishment = (

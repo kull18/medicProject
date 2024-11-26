@@ -58,7 +58,7 @@ async def create_caipaign(
             file_content = await file.read()
             print(file.filename)
             
-            bucket_name = "upmedicproject4c"
+            bucket_name = "upmedicproject4c2"
             object_name = f"campaigns/{new_campaign.id_campañas}/{file.filename}"
             s3.put_object(Bucket=bucket_name, Key=object_name, Body=file_content)
             return {
@@ -85,7 +85,7 @@ async def get_employees(location: str,db: Session = Depends(get_db)):
     try:
 
       s3 = get_s3_connection()
-      response = s3.list_objects_v2(Bucket="upmedicproject4c")
+      response = s3.list_objects_v2(Bucket="upmedicproject4c2")
 
       if 'Contents' not in response:
          raise HTTPException(status_code=404, detail="no se encontraron elementos")
@@ -94,7 +94,7 @@ async def get_employees(location: str,db: Session = Depends(get_db)):
       for obj in response['Contents']:
          file_key = obj['Key']
          if file_key.endswith(('.jpg', '.jpeg', '.png')):  
-                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
       all_campaigns = db.query(campaigns, Establishment).join(Establishment, campaigns.id_establecimiento == Establishment.id_establecimiento).filter(Establishment.localidad == location); 
@@ -119,7 +119,7 @@ async def get_employees(id_establishment: int,db: Session = Depends(get_db)):
     try:
 
       s3 = get_s3_connection()
-      response = s3.list_objects_v2(Bucket="upmedicproject4c")
+      response = s3.list_objects_v2(Bucket="upmedicproject4c2")
 
       if 'Contents' not in response:
          raise HTTPException(status_code=404, detail="no se encontraron elementos")
@@ -128,7 +128,7 @@ async def get_employees(id_establishment: int,db: Session = Depends(get_db)):
       for obj in response['Contents']:
          file_key = obj['Key']
          if file_key.endswith(('.jpg', '.jpeg', '.png')):  
-                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
       all_campaigns = db.query(campaigns).filter(campaigns.id_establecimiento == id_establishment).all(); 
@@ -153,7 +153,7 @@ async def get_employees(campaign_name: str,location: str,db: Session = Depends(g
     try:
 
         s3 = get_s3_connection()
-        response = s3.list_objects_v2(Bucket="upmedicproject4c")
+        response = s3.list_objects_v2(Bucket="upmedicproject4c2")
         
         if 'Contents' not in response:
             raise HTTPException(status_code=404, detail="No elements found in S3")
@@ -162,7 +162,7 @@ async def get_employees(campaign_name: str,location: str,db: Session = Depends(g
         for obj in response['Contents']:
             file_key = obj['Key']
             if file_key.endswith(('.jpg', '.jpeg', '.png')):
-                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
         
        
@@ -189,7 +189,7 @@ async def get_employees(id_establishment: int,name: str,db: Session = Depends(ge
     try:
 
         s3 = get_s3_connection()
-        response = s3.list_objects_v2(Bucket="upmedicproject4c")
+        response = s3.list_objects_v2(Bucket="upmedicproject4c2")
         
         if 'Contents' not in response:
             raise HTTPException(status_code=404, detail="No elements found in S3")
@@ -199,7 +199,7 @@ async def get_employees(id_establishment: int,name: str,db: Session = Depends(ge
         for obj in response['Contents']:
             file_key = obj['Key']
             if file_key.endswith(('.jpg', '.jpeg', '.png')):
-                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
         
        
@@ -227,7 +227,7 @@ async def get_employees(db: Session = Depends(get_db)):
     try:
 
       s3 = get_s3_connection()
-      response = s3.list_objects_v2(Bucket="upmedicproject4c")
+      response = s3.list_objects_v2(Bucket="upmedicproject4c2")
 
       if 'Contents' not in response:
          raise HTTPException(status_code=404, detail="no se encontraron elementos")
@@ -236,7 +236,7 @@ async def get_employees(db: Session = Depends(get_db)):
       for obj in response['Contents']:
          file_key = obj['Key']
          if file_key.endswith(('.jpg', '.jpeg', '.png')):  
-                image_url = f"https://upmedicproject4c.s3.amazonaws.com/{file_key}"
+                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
       all_campaigns = db.query(campaigns).all(); 
