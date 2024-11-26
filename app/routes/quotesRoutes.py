@@ -104,13 +104,42 @@ async def getQuotesById(id_patient: int, status: str, bd: Session = Depends(get_
     except Exception as e:
         return {"error": str(e)}
 
-@quotesRoutes.get("/quotesByIdRecepcionist/{id_establecimiento}/{status}", status_code=status.HTTP_200_OK)
+@quotesRoutes.get("/quotesByIdDoctorWith/{id_patient}/{status}", status_code=status.HTTP_200_OK)
+async def getQuotesById(id_patient: int, status: str, bd: Session = Depends(get_db)):
+    try:
+        quotesById = (
+            bd.query(quotes, Service, Establishment)  
+            .join(Service, Service.id_servicio == quotes.id_servicio) 
+            .join(Establishment, Establishment.id_establecimiento == Service.id_establecimiento) 
+            .filter(quotes.id_doctor == id_patient)  
+            .filter(quotes.estatus == status) 
+            .all()
+        )
+        result = [
+            {
+                'id_cita': quote.id_cita,
+                'fecha': quote.fecha,
+                'estatus': quote.estatus,
+                'horario': quote.horario,
+                'id_establecimiento': establecimiento.id_establecimiento  
+            }
+            for quote, servicio, establecimiento in quotesById
+        ]
+
+        return result
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@quotesRoutes.get("/quotesByIdEstablishment/{id_establecimiento}/{status}", status_code=status.HTTP_200_OK)
 async def getQuotesByEstablishment(id_establecimiento: int, status: str, bd: Session = Depends(get_db)):
     try:
         doctor = aliased(user)
         servicio = aliased(Service)
         establecimiento = aliased(Establishment)
 
+        # Realizamos la consulta con las relaciones necesarias
         quotesByEstablishment = bd.query(quotes, servicio, establecimiento).\
             join(servicio, servicio.id_servicio == quotes.id_servicio).\
             join(establecimiento, establecimiento.id_establecimiento == servicio.id_establecimiento).\
@@ -118,10 +147,22 @@ async def getQuotesByEstablishment(id_establecimiento: int, status: str, bd: Ses
             filter(quotes.estatus == status).\
             all()
 
-        return quotesByEstablishment
+        response = []
+        for quote, service, establishment in quotesByEstablishment:
+            response.append({
+                'id_cita': quote.id_cita,               
+                'fecha': str(quote.fecha) if quote.fecha else "", 
+                'estatus': quote.estatus,               
+                'horario': str(quote.horario) if quote.horario else "",  
+                'id_establecimiento': establishment.id_establecimiento  
+            })
+        
+        return response 
+
     except Exception as e:
         return {"error": str(e)}
     
+
 @quotesRoutes.put("/quotes/{id_quote}", response_model=QuotesResponse)
 async def change_quote(id_quote: int, quoteChange: QuotesRequest,db: Session = Depends(get_db)): 
 
