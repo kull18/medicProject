@@ -315,7 +315,7 @@ async def get_images_from_s3(type_establishment: str, category: str,location: st
 
         data_establishment_image = []
         for image in images:
-            for establishment, address, promedio_calificacion in all_establishment:
+            for establishment, service ,address, promedio_calificacion in all_establishment:
                 nombre_image = f"establishments/{establishment.id_establecimiento}"
                 if nombre_image in image:
                     data_establishment_image.append({
