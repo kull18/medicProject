@@ -331,7 +331,7 @@ async def get_images_from_s3(location: str,db: Session = Depends(get_db)):
             detail=f"Error al obtener imágenes del bucket: {e}"
         )
     
-@establishmentRoutes.get("/findEstablishmentByService/${service}/{location}", status_code=status.HTTP_200_OK)
+@establishmentRoutes.get("/findEstablishmentByService/{service}/{location}", status_code=status.HTTP_200_OK)
 async def get_images_from_s3(service: str,location: str,db: Session = Depends(get_db)):
     try:
         # Conexión a S3
