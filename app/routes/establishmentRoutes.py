@@ -111,48 +111,10 @@ async def get_all_services(db: Session = Depends(get_db)):
          return data_services
    except Exception as e:
       return e
-   
-@establishmentRoutes.get("/searchEstablishment/{name_establishment}/{location}", status_code=status.HTTP_201_CREATED)
-async def getEstablishmentByName(name_establishment: str, location: str,db: Session = Depends(get_db)):
-    
-    try:
-
-      s3 = get_s3_connection()
-      response = s3.list_objects_v2(Bucket="upmedicproject4c2")
-
-      if 'Contents' not in response:
-         raise HTTPException(status_code=404, detail="no se encontraron elementos")
-      
-      images = []
-      for obj in response['Contents']:
-         file_key = obj['Key']
-         if file_key.endswith(('.jpg', '.jpeg', '.png')):  
-                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
-                images.append(image_url)
-
-      establishment_name = db.query(Establishment, Address).join(Address, Address.id_dirección == Establishment.id_dirección).filter(Establishment.nombre == name_establishment).filter(Establishment.localidad == location).all()
-     
-      if establishment_name is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST
-        )
-      print(establishment_name)
-      data_establishment = []
-      for establishment, address in establishment_name:
-         nombre_image = f"establishments/{establishment.id_establecimiento}"
-         for image in images:
-          if nombre_image in image:
-           data_establishment.append({
-            "id_establecimiento": establishment.id_establecimiento,
-            "nombre": establishment.nombre,
-            "direccion": address,
-            "image": image
-         })
 
 
-      return data_establishment
-    except Exception as e:
-        return "error: " + str(e); 
+
+
 
 '''''
 @establishmentRoutes.get("/findEstablishmentByService/{service_type}/{location}")
@@ -281,7 +243,57 @@ async def get_establishments(db: Session = Depends(get_db)):
       return all_establishments; 
     except Exception as e:
        return e
-    
+
+
+@establishmentRoutes.get("/searchEstablishment/{name_establishment}/{location}", status_code=status.HTTP_200_OK)
+async def get_images_from_s3(name_establishment: str,location: str,db: Session = Depends(get_db)):
+    try:
+        s3 = get_s3_connection()
+        response = s3.list_objects_v2(Bucket="upmedicproject4c2")
+
+        if 'Contents' not in response:
+            raise HTTPException(status_code=404, detail="No se encontraron objetos en el bucket.")
+        
+        images = []
+        for obj in response['Contents']:
+            file_key = obj['Key']
+            if file_key.endswith(('.jpg', '.jpeg', '.png')):  
+                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
+                images.append(image_url)
+
+        print(images)
+
+        all_establishment = (
+            db.query(Establishment, Address,
+                     func.avg(Braiting.calificacion).label('promedio_calificacion'))
+            .join(Address, Establishment.id_dirección == Address.id_dirección)
+            .outerjoin(Braiting, Braiting.id_establecimiento == Establishment.id_establecimiento)
+            .group_by(Establishment.id_establecimiento,Address.id_dirección)
+            .filter(Establishment.localidad == location, Establishment.nombre == name_establishment)
+            .all()
+        )
+
+        data_establishment_image = []
+        for image in images:
+            for establishment,address, promedio_calificacion in all_establishment:
+                nombre_image = f"establishments/{establishment.id_establecimiento}"
+                if nombre_image in image:
+                    data_establishment_image.append({
+                        "id_establecimiento": establishment.id_establecimiento,
+                        "nombre": establishment.nombre,
+                        "direccion": address,
+                        "image": image,
+                        "promedio_calificacion": promedio_calificacion if promedio_calificacion is not None else 0
+                    })
+
+        return data_establishment_image
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener imágenes del bucket: {e}"
+        )
+
 
 @establishmentRoutes.get("/findEstablishmentByTypeCategory/{type_establishment}/{category}/{location}", status_code=status.HTTP_200_OK)
 async def get_images_from_s3(type_establishment: str, category: str,location: str,db: Session = Depends(get_db)):
@@ -315,7 +327,7 @@ async def get_images_from_s3(type_establishment: str, category: str,location: st
 
         data_establishment_image = []
         for image in images:
-            for establishment, service, type_establishment, address, promedio_calificacion in all_establishment:
+            for establishment, service, typeestablishment,address, promedio_calificacion in all_establishment:
                 nombre_image = f"establishments/{establishment.id_establecimiento}"
                 if nombre_image in image:
                     data_establishment_image.append({
