@@ -17,6 +17,7 @@ import os
 from app.models.braiting import Braiting
 from botocore.exceptions import NoCredentialsError
 from app.models.Servicie import Service
+from app.models.type_establishment import TypeEstablishment
 
 SupportedTypes = ["image/jpeg", "image/png"]
 
@@ -215,14 +216,13 @@ async def get_establishment_by_type_category(
     db: Session = Depends(get_db)
 ):
     try:
-        
+        # Conexión a S3 para obtener las imágenes
         s3 = get_s3_connection()
         response = s3.list_objects_v2(Bucket="upmedicproject4c2")
 
         if 'Contents' not in response:
             raise HTTPException(status_code=404, detail="No se encontraron objetos en el bucket.")
         
-
         images = []
         for obj in response['Contents']:
             file_key = obj['Key']
@@ -230,15 +230,17 @@ async def get_establishment_by_type_category(
                 image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
                 images.append(image_url)
 
-
         search_establishment = (
-            db.query(Establishment, Service, Address)
-            .join(Service, Service.id_establecimiento == Establishment.id_establecimiento)
+            db.query(Establishment, TypeEstablishment, Address)
+            .join(TypeEstablishment, TypeEstablishment.id_tipo_establecimiento == Establishment.id_tipo_establecimiento)
             .join(Address, Address.id_dirección == Establishment.id_dirección)
-            .filter(Service.tipo == service_type, Establishment.categoria == category, Establishment.localidad == location)
+            .filter(
+                TypeEstablishment.tipo == service_type, 
+                Establishment.categoria == category, 
+                Establishment.localidad == location
+            )
             .all()
         )
-
 
         if not search_establishment:
             raise HTTPException(
@@ -247,8 +249,9 @@ async def get_establishment_by_type_category(
             )
 
         data_found_establishments = []
-        for establishment, service, address in search_establishment:
+        for establishment, type_establishment, address in search_establishment:
             image_establishment = f"establishments/{establishment.id_establecimiento}"
+            
             for image in images:
                 if image_establishment in image:
                     data_found_establishments.append({
@@ -257,13 +260,12 @@ async def get_establishment_by_type_category(
                         "dirección": address,
                         "image": image
                     })
-
         return data_found_establishments
 
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error al procesar la solicitud: {e}"
+            detail=f"Error al procesar la solicitud: {str(e)}"
         )
 
     
