@@ -309,7 +309,7 @@ async def get_images_from_s3(type_establishment: str, category: str,location: st
             .join(Address, Establishment.id_dirección == Address.id_dirección)
             .outerjoin(Braiting, Braiting.id_establecimiento == Establishment.id_establecimiento)
             .group_by(Establishment.id_establecimiento, Service.id_servicio, TypeEstablishment.id_tipo_establecimiento,Address.id_dirección)
-            .filter(Establishment.localidad == location, TypeEstablishment == type_establishment, Establishment.categoria == category)
+            .filter(Establishment.localidad == location, TypeEstablishment.tipo == type_establishment, Establishment.categoria == category)
             .all()
         )
 
