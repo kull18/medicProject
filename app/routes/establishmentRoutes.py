@@ -235,7 +235,7 @@ async def get_establishment_by_type_category(
             db.query(Establishment, Service, Address)
             .join(Service, Service.id_establecimiento == Establishment.id_establecimiento)
             .join(Address, Address.id_dirección == Establishment.id_dirección)
-            .filter(Service.tipo == service_type, Establishment.categoria == category, Establishment.categoria == category,  Establishment.localidad == location)
+            .filter(Service.tipo == service_type, Establishment.categoria == category, Establishment.localidad == location)
             .all()
         )
 
