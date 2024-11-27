@@ -154,6 +154,7 @@ async def getEstablishmentByName(name_establishment: str, location: str,db: Sess
     except Exception as e:
         return "error: " + str(e); 
 
+'''''
 @establishmentRoutes.get("/findEstablishmentByService/{service_type}/{location}")
 async def get_establishment_by_name(service_type: str, location: str,db: Session = Depends(get_db)):
    try:
@@ -207,7 +208,7 @@ async def get_establishment_by_name(service_type: str, location: str,db: Session
         status_code=500,
         detail=f"Error al procesar la solicitud: {e}"
     ) 
-   
+'''''
 @establishmentRoutes.get("/findEstablishmentByTypeCategory/{service_type}/{category}/{location}")
 async def get_establishment_by_type_category(
     service_type: str, 
@@ -216,7 +217,6 @@ async def get_establishment_by_type_category(
     db: Session = Depends(get_db)
 ):
     try:
-        # Conexión a S3 para obtener las imágenes
         s3 = get_s3_connection()
         response = s3.list_objects_v2(Bucket="upmedicproject4c2")
 
@@ -307,6 +307,57 @@ async def get_images_from_s3(location: str,db: Session = Depends(get_db)):
             .outerjoin(Braiting, Braiting.id_establecimiento == Establishment.id_establecimiento)
             .group_by(Establishment.id_establecimiento, Address.id_dirección)
             .filter(Establishment.localidad == location)
+            .all()
+        )
+
+        data_establishment_image = []
+        for image in images:
+            for establishment, address, promedio_calificacion in all_establishment:
+                nombre_image = f"establishments/{establishment.id_establecimiento}"
+                if nombre_image in image:
+                    data_establishment_image.append({
+                        "id_establecimiento": establishment.id_establecimiento,
+                        "nombre": establishment.nombre,
+                        "direccion": address,
+                        "image": image,
+                        "promedio_calificacion": promedio_calificacion if promedio_calificacion is not None else 0
+                    })
+
+        return data_establishment_image
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener imágenes del bucket: {e}"
+        )
+    
+@establishmentRoutes.get("/findEstablishmentByService/${service}/{location}", status_code=status.HTTP_200_OK)
+async def get_images_from_s3(service: str,location: str,db: Session = Depends(get_db)):
+    try:
+        # Conexión a S3
+        s3 = get_s3_connection()
+        response = s3.list_objects_v2(Bucket="upmedicproject4c2")
+
+        if 'Contents' not in response:
+            raise HTTPException(status_code=404, detail="No se encontraron objetos en el bucket.")
+        
+        images = []
+        for obj in response['Contents']:
+            file_key = obj['Key']
+            if file_key.endswith(('.jpg', '.jpeg', '.png')):  
+                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
+                images.append(image_url)
+
+        print(images)
+
+        all_establishment = (
+            db.query(Establishment, Service,Address,
+                     func.avg(Braiting.calificacion).label('promedio_calificacion'))
+            .join(Address, Establishment.id_dirección == Address.id_dirección)
+            .join(Service, Service.id_establecimiento == Establishment.id_establecimiento)
+            .outerjoin(Braiting, Braiting.id_establecimiento == Establishment.id_establecimiento)
+            .group_by(Establishment.id_establecimiento, Address.id_dirección)
+            .filter(Establishment.localidad == location, Service.tipo == service)
             .all()
         )
 
