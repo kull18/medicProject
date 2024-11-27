@@ -209,6 +209,8 @@ async def get_establishment_by_name(service_type: str, location: str,db: Session
         detail=f"Error al procesar la solicitud: {e}"
     ) 
 '''''
+
+'''''
 @establishmentRoutes.get("/findEstablishmentByTypeCategory/{service_type}/{category}/{location}")
 async def get_establishment_by_type_category(
     service_type: str, 
@@ -267,7 +269,7 @@ async def get_establishment_by_type_category(
             status_code=500,
             detail=f"Error al procesar la solicitud: {str(e)}"
         )
-
+'''''
     
 @establishmentRoutes.get('/establishment/', status_code= status.HTTP_200_OK, response_model= List[EstablishmentResponse])
 async def get_establishments(db: Session = Depends(get_db)):
@@ -280,6 +282,58 @@ async def get_establishments(db: Session = Depends(get_db)):
     except Exception as e:
        return e
     
+
+@establishmentRoutes.get("/findEstablishmentByTypeCategory/{type_establishment}/{category}/{location}", status_code=status.HTTP_200_OK)
+async def get_images_from_s3(type_establishment: str, category: str,location: str,db: Session = Depends(get_db)):
+    try:
+        s3 = get_s3_connection()
+        response = s3.list_objects_v2(Bucket="upmedicproject4c2")
+
+        if 'Contents' not in response:
+            raise HTTPException(status_code=404, detail="No se encontraron objetos en el bucket.")
+        
+        images = []
+        for obj in response['Contents']:
+            file_key = obj['Key']
+            if file_key.endswith(('.jpg', '.jpeg', '.png')):  
+                image_url = f"https://upmedicproject4c2.s3.amazonaws.com/{file_key}"
+                images.append(image_url)
+
+        print(images)
+
+        all_establishment = (
+            db.query(Establishment, Service, TypeEstablishment, Address,
+                     func.avg(Braiting.calificacion).label('promedio_calificacion'))
+            .join(Service, Service.id_establecimiento == Establishment.id_establecimiento)
+            .join(TypeEstablishment, TypeEstablishment.id_tipo_establecimiento == Establishment.id_tipo_establecimiento)
+            .join(Address, Establishment.id_dirección == Address.id_dirección)
+            .outerjoin(Braiting, Braiting.id_establecimiento == Establishment.id_establecimiento)
+            .group_by(Establishment.id_establecimiento, Address.id_dirección)
+            .filter(Establishment.localidad == location, TypeEstablishment == type_establishment, Establishment.categoria == category)
+            .all()
+        )
+
+        data_establishment_image = []
+        for image in images:
+            for establishment, address, promedio_calificacion in all_establishment:
+                nombre_image = f"establishments/{establishment.id_establecimiento}"
+                if nombre_image in image:
+                    data_establishment_image.append({
+                        "id_establecimiento": establishment.id_establecimiento,
+                        "nombre": establishment.nombre,
+                        "direccion": address,
+                        "image": image,
+                        "promedio_calificacion": promedio_calificacion if promedio_calificacion is not None else 0
+                    })
+
+        return data_establishment_image
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener imágenes del bucket: {e}"
+        )
+
 
 @establishmentRoutes.get("/allImagesEstablishment/{location}", status_code=status.HTTP_200_OK)
 async def get_images_from_s3(location: str,db: Session = Depends(get_db)):
@@ -353,8 +407,8 @@ async def get_images_from_s3(service: str,location: str,db: Session = Depends(ge
         all_establishment = (
             db.query(Establishment, Service,Address,
                      func.avg(Braiting.calificacion).label('promedio_calificacion'))
+            .join(Service, Service.id_establecimiento == Establishment.id_establecimiento)                     
             .join(Address, Establishment.id_dirección == Address.id_dirección)
-            .join(Service, Service.id_establecimiento == Establishment.id_establecimiento)
             .outerjoin(Braiting, Braiting.id_establecimiento == Establishment.id_establecimiento)
             .group_by(Establishment.id_establecimiento, Address.id_dirección)
             .filter(Establishment.localidad == location, Service.tipo == service)
@@ -363,7 +417,7 @@ async def get_images_from_s3(service: str,location: str,db: Session = Depends(ge
 
         data_establishment_image = []
         for image in images:
-            for establishment, address, promedio_calificacion in all_establishment:
+            for establishment, service ,address, promedio_calificacion in all_establishment:
                 nombre_image = f"establishments/{establishment.id_establecimiento}"
                 if nombre_image in image:
                     data_establishment_image.append({
