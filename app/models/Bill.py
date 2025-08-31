@@ -9,3 +9,4 @@ class bills(Base):
     id_cita = Column(Integer, ForeignKey("citas.id_cita"), nullable=True)
     total = Column(Integer ,nullable=True)
     comisión = Column(String(50), nullable=True)
+ 
