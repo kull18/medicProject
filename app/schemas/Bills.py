@@ -1,7 +1,7 @@
 from pydantic import BaseModel; 
 
 
-print("awe")
+print("aweaweawe")
 class BillsBase(BaseModel):
     
     descripción: str
