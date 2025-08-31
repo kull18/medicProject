@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, INT, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey
 from app.shared.config.db import Base
 
 class bills(Base):

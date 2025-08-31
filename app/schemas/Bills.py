@@ -1,5 +1,7 @@
 from pydantic import BaseModel; 
 
+
+print("awe")
 class BillsBase(BaseModel):
     
     descripción: str
